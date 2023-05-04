@@ -25,15 +25,13 @@ def alpha3code(column):
                 CODE.append('VEN')    
     return CODE
 
-def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='150',iconLeft=95,iconTop=80,backgroundColor='white'):
+def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_size="7vw",unit="%",height='150',iconLeft=95,iconTop=80,backgroundColor='white'):
     pgcol='green'
     if isinstance(val, numbers.Number):
         if val<0:
             pgcol='red'
     if compare==False:
         pgcol='darkgrey'
-    style={'icon': icon,'icon_color':'#535353','progress_color':pgcol}
-    icoSize="20vw"
     if compare==False:
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,unit=unit,iconLeft=iconLeft,showProgress=False,iconTop=iconTop,backgroundColor=backgroundColor,)
     else:
@@ -79,7 +77,7 @@ def getPage(sess):
     rawcampDF=getRawCampaign()
     col1, col2,col3,col4 = st.columns(4)
     with col1:
-        hg = "220"
+        hg = "210"
         getCard("GBL IMPRESSIONS","{:,}".format(getGlobalKPI( rawcampDF,'IMPRESSIONS','sum')),'fa fa-desktop',key='one',height=hg)
     with col2:
         getCard("GLOBAL CLICKS","{:,}".format(getGlobalKPI( rawcampDF,'CLICKS','sum')),'fa fa-hand-pointer',key='two,',height=hg)
