@@ -1,4 +1,4 @@
-from streamlit_option_menu import option_menu
+import hydralit_components as hc
 import campaign, ads,whatif
 from ui import setUI
 import streamlit.components.v1 as components
@@ -6,9 +6,10 @@ import snowflake.connector as sf
 import streamlit as st
 import gc
 import configparser
+from PIL import Image
 
 
-
+st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
 
 @st.cache_resource(ttl=5000)
 def getSession():
@@ -22,21 +23,27 @@ def getSession():
         session = sf.connect(**st.secrets.snow)
     return session
 
-page = option_menu("Adverity-Piano-Snowflake-MarketPlace", ["Campaigns Overview","Ads Performance","Budget Allocation"],
-                   icons=['binoculars-fill', "list-task",'question-circle'],
-                   menu_icon="window", default_index=0, orientation="horizontal",
-                   styles={
-                       "container": {"max-width": "100%!important","--primary-color":"#4a4d4f","--text-color":"#30333f"},
-                       "nav-link": {"font-weight": "600"},
-                       "menu-title" :{"font-weight": "600"},
-                       "nav-link": {"font-size": "1.1vw","font-weight": "600"}
-                       # "margin":"0px", "--hover-color": "#eee"}
-                       # "container": {"padding": "0!important", "background-color": "#fafafa"}, "icon": {"color":
-                       # "orange", "font-size": "25px"}, "nav-link": {"font-size": "25px", "text-align": "left",
-                       # "margin":"0px", "--hover-color": "#eee"}, "nav-link-selected": {"background-color": "green"},
-                   }
-                   )
+menu_data = [
+    {'id':'Campaigns Overview','icon':"fas fa-map-signs",'label':"Campaigns Overview"},
+    {'id':'Ads Performance','icon':"fab fa-buysellads",'label':"Ads Performance"},
+    {'id':'Budget Allocation','icon':"fas fa-donate",'label':"Budget Allocation"},
 
+]
+
+over_theme = {'txc_active':'#5d5d5d','txc_inactive': '#adadad', 'menu_background':'#f0f2f6'}
+
+image = Image.open('summit_logo.png')
+
+
+st.image(image)
+
+page = hc.nav_bar(
+    menu_definition=menu_data,
+    override_theme=over_theme,
+    hide_streamlit_markers=False, #will show the st hamburger as well as the navbar now!
+    sticky_nav=True, #at the top or not
+    sticky_mode='pinned', #jumpy or not-jumpy, but sticky or pinned
+)
 
 
 emp=st.empty()
@@ -52,20 +59,3 @@ if page == "Budget Allocation":
     whatif.getPage(getSession())          
 emp.empty()
 
-
-# menu_data = [
-#     {'id':'Home','icon':"🐙",'label':"Home"},
-#     {'id':'Campaigns','icon': "💀", 'label':"Campaigns"},
-# ]
-# over_theme = {'txc_inactive': '#FFFFFF'}
-# menu_id = hc.nav_bar(
-#     menu_definition=menu_data,
-#     override_theme=over_theme,
-#     hide_streamlit_markers=False, #will show the st hamburger as well as the navbar now!
-#     sticky_nav=True, #at the top or not
-#     sticky_mode='pinned', #jumpy or not-jumpy, but sticky or pinned
-# )
-# if menu_id=='Home':
-#     main.getPage(getSession())
-# if menu_id=='Campaigns':
-#     campaign.getPage(getSession())     
