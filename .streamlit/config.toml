@@ -1,0 +1,9 @@
+[theme]
+base="light"
+primaryColor="#2871e2"
+
+[browser]
+gatherUsageStats = false
+
+[runner]
+fastReruns = true

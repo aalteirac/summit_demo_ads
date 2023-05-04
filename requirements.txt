@@ -1,0 +1,17 @@
+streamlit==1.18.0
+plotly
+streamlit-option-menu
+snowflake-connector-python
+streamlit-folium==0.11.1
+pandas
+Pillow
+streamlit-aggrid==0.3.2
+streamlit-elements
+streamlit-kpi==0.0.27
+folium==0.13.0
+leafmap==0.17.1
+pycountry
+geopandas
+mapclassify
+scikit-learn
+ConfigParser
