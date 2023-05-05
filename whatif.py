@@ -18,15 +18,13 @@ def formatBigNumber(number):
     return '%.3f%s' % (number / k**magnitude, units[magnitude])
 
 
-def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='250',iconLeft=90,iconTop=50,backgroundColor='white'):
+def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='250',iconLeft=90,iconTop=80,backgroundColor='white'):
     pgcol='green'
     if isinstance(val, numbers.Number):
         if val<0:
             pgcol='red'
     if compare==False:
         pgcol='darkgrey'
-    style={'icon': icon,'icon_color':'#535353','progress_color':pgcol}
-    icoSize="20vw"
     if compare==False:
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,unit=unit,iconLeft=iconLeft,showProgress=False,iconTop=iconTop,backgroundColor=backgroundColor)
     else:
@@ -80,12 +78,12 @@ def getPage(sess):
         totalcost=getTotalCost(dt)
         totalcostOrig=getTotalCost(orig)
         compared=(1-((totalcost/totalcostOrig)))*100
-        st.subheader("Estimate Saving by Manually Canceling Campaigns in Countries"  )
+        st.subheader("Rebalance Budget Manually"  )
         colL,colR=st.columns(2)
         with colL:
-            getCard(text="ORIGINAL COST",val=formatBigNumber(totalcostOrig),icon='fa fa-money-bill',compare=True,key='zero')  
+            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare=True,key='zero')  
         with colR:
-            getCard(text='SAVING: '+ str(round(compared,2))+'%',val=formatBigNumber(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare=True,key='minusone') 
+            getCard(text='BUDGET BUFFER:',val=formatBigNumber(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare=True,key='minusone') 
         getCountrySelectionBox(orig,dt) 
         getCampaignSelectionBox(orig,dt)   
 
@@ -111,12 +109,12 @@ def getPage(sess):
         totalcost=getTotalCost(dt2)
         totalcostOrig=getTotalCost(orig)
         compared=(1-((totalcost/totalcostOrig)))*100
-        st.subheader("Estimate Saving by Scientifically Canceling Campaigns in Countries"  )
+        st.subheader("Rebalance Budget Scientifically"  )
         colL,colR=st.columns(2)
         with colL:
-            getCard(text="ORIGINAL COST",val=formatBigNumber(totalcostOrig),icon='fa fa-money-bill',compare= True,key='one')  
+            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare= True,key='one',unit='$')  
         with colR:
-            getCard(text='SAVING: '+ str(round(compared,2))+'%',val=formatBigNumber(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two') 
+            getCard(text='BUDGET BUFFER: ',val=formatBigNumber(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two') 
         colL,colR=st.columns(2)   
         with colL: 
             st.slider('Cluster Number',2,10,value=5,key='clusNum')
@@ -148,5 +146,5 @@ def getPage(sess):
                 size_max=30,
                 height=430
             )
-        st.subheader("Clustering Countries by ER, CTR and Video Completion"  )      
+        st.subheader("Clustering Ads by ER, CTR"  )      
         st.plotly_chart(fig, theme="streamlit",use_container_width=True)   

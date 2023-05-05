@@ -4,6 +4,3 @@ primaryColor="#7f7f7f"
 
 [browser]
 gatherUsageStats = false
-
-[runner]
-fastReruns = true

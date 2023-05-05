@@ -156,7 +156,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
 def getEuroRendererCPV():
     rd = JsCode('''
         function(params) { 
-            return '<span>' + parseFloat(params.value).toFixed(2) + '€</span>'}
+            return '<span>$' + parseFloat(params.value).toFixed(2) + '</span>'}
     ''') 
     return rd  
 

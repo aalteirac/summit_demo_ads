@@ -44,7 +44,7 @@ def setUI():
                     /* overflow:hidden; */
                 } 
                 div[data-testid="stVerticalBlock"] {
-                    gap:0.4rem;
+                    gap:0rem;
                 }
                 .stMarkdown div:has(.big-font){
                     position: absolute;
