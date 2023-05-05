@@ -83,7 +83,7 @@ def getPage(sess):
         with colL:
             getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare=True,key='zero')  
         with colR:
-            getCard(text='BUDGET BUFFER:',val=formatBigNumber(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare=True,key='minusone') 
+            getCard(text='BUDGET BUFFER:',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare=True,key='minusone',unit='$') 
         getCountrySelectionBox(orig,dt) 
         getCampaignSelectionBox(orig,dt)   
 
@@ -114,7 +114,7 @@ def getPage(sess):
         with colL:
             getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare= True,key='one',unit='$')  
         with colR:
-            getCard(text='BUDGET BUFFER: ',val=formatBigNumber(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two') 
+            getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$') 
         colL,colR=st.columns(2)   
         with colL: 
             st.slider('Cluster Number',2,10,value=5,key='clusNum')
