@@ -18,17 +18,12 @@ def formatBigNumber(number):
     return '%.3f%s' % (number / k**magnitude, units[magnitude])
 
 
-def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='250',iconLeft=90,iconTop=80,backgroundColor='white'):
+def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='250',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100):
     pgcol='green'
-    if isinstance(val, numbers.Number):
-        if val<0:
-            pgcol='red'
     if compare==False:
-        pgcol='darkgrey'
-    if compare==False:
-        streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,unit=unit,iconLeft=iconLeft,showProgress=False,iconTop=iconTop,backgroundColor=backgroundColor)
+        streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,progressColor='white',iconLeft=iconLeft,showProgress=True,iconTop=iconTop,backgroundColor=backgroundColor)
     else:
-        streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=100,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=pgcol,iconTop=iconTop,backgroundColor=backgroundColor)  
+        streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=pgcol,iconTop=iconTop,backgroundColor=backgroundColor)  
 
 @st.cache_data(show_spinner=False,ttl=5000)
 def getRawCampaign():
@@ -39,7 +34,11 @@ def getRawCampaign():
     return df
 
 def getTotalCost(df):
-    return df['COSTS'].sum()
+    if 'COSTS' in df:
+        return df['COSTS'].sum()
+    if 'COSTS_x' in df:
+        return df['COSTS_x'].sum()    
+
 
 def getCountrySelectionBox(raw,selec):
     raw=raw.sort_values(['COUNTRY_NAME'])
@@ -81,7 +80,7 @@ def getPage(sess):
         st.subheader("Rebalance Budget Manually"  )
         colL,colR=st.columns(2)
         with colL:
-            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare=True,key='zero')  
+            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare=False,key='zero')  
         with colR:
             getCard(text='BUDGET BUFFER:',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare=True,key='minusone',unit='$') 
         getCountrySelectionBox(orig,dt) 
@@ -96,10 +95,10 @@ def getPage(sess):
         clusterDF=orig.groupby(['COUNTRY_NAME']).agg({
                                         'CTR':"mean",
                                         'ER':'mean',
-                                        'VIDEO_COMPLETION_RATE':'mean'
+                                        'COSTS':'mean'
                                         }).reset_index()
-        kmeans.fit(clusterDF[['CTR','ER','VIDEO_COMPLETION_RATE']])  
-        clusterDF['VIDEO_COMPLETION_RATE']=clusterDF['VIDEO_COMPLETION_RATE']*100
+        kmeans.fit(clusterDF[['CTR','ER','COSTS']])  
+        # clusterDF['VIDEO_COMPLETION_RATE']=clusterDF['VIDEO_COMPLETION_RATE']*100
         clusterDF['CLUSTER'] = kmeans.labels_ 
         clusterDF['CLUSTER']  = clusterDF['CLUSTER'].astype(str)
         clusterDF=clusterDF.sort_values(['CLUSTER'])
@@ -112,9 +111,9 @@ def getPage(sess):
         st.subheader("Rebalance Budget Scientifically"  )
         colL,colR=st.columns(2)
         with colL:
-            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare= True,key='one',unit='$')  
+            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare= False,key='one',unit='$')  
         with colR:
-            getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$') 
+            getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100) 
         colL,colR=st.columns(2)   
         with colL: 
             st.slider('Cluster Number',2,10,value=5,key='clusNum')
@@ -125,7 +124,7 @@ def getPage(sess):
                 clusterDF,
                 y="CTR",
                 size="ER",
-                x='VIDEO_COMPLETION_RATE',
+                x='COSTS',
                 color="CLUSTER",
                 symbol = 'EXCLUDED',
                 symbol_map={True:'circle-open',False:'circle'},
@@ -140,7 +139,7 @@ def getPage(sess):
                 clusterDF,
                 y="CTR",
                 size="ER",
-                x='VIDEO_COMPLETION_RATE',
+                x='COSTS',
                 color="CLUSTER",
                 hover_name="COUNTRY_NAME",
                 size_max=30,
