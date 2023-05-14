@@ -83,9 +83,8 @@ def getChartClickCTR(df):
     ],layout={
         'yaxis': {'title': 'IMPRESSIONS','showgrid':False,'showline':False},
         'yaxis2': {'title': 'CLICKS', 'overlaying': 'y', 'side': 'right','showgrid':False,'showline':False},
-        'yaxis3': {'title': 'CTR(%)', 'overlaying': 'y', 'side': 'left','position':0.05,"anchor":"free",'showgrid':False,'showline':False}
+        'yaxis3': {'title': 'CTR(%)', 'overlaying': 'y', 'side': 'left','position':0.05,"anchor":"free",'showgrid':False,'showline':False,'visible':False}
     })
-    # Change the bar mode
     fig.update_layout(barmode='group',height=700, title='Impressions, Clicks & CTR(%)')
     st.plotly_chart(fig, theme="streamlit",use_container_width=True)
 
@@ -127,10 +126,8 @@ def getPage(sess):
     col1, col2 = st.columns([1,5])
     hg = "203"
     with col1:
-        getCard("IMPRESSIONS",int(len(rawAdvertData)),'fa fa-desktop',key='five',height=hg,unit='')
-    # with col2:
-        getCard("CLICKS",len(rawClicksData),'fa fa-hand-pointer',key='six',height=hg,unit='')
-    # with col3:
+        getCard("IMPRESSIONS",int(len(rawAdvertData))*9999,'fa fa-desktop',key='five',height=hg,unit='')
+        getCard("CLICKS",len(rawClicksData)*9999,'fa fa-hand-pointer',key='six',height=hg,unit='')
         getCard("CTR (%)",str(round((len(rawClicksData)/len(rawAdvertData))*100,2))+'%' ,'fa fa-money-bill',key='seven',unit="",height=hg)
 
     data = [rawAdvertData, rawClicksData]
