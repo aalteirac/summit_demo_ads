@@ -125,7 +125,7 @@ def getPage(sess):
             rawClicksData=rawClicksData[rawClicksData['LINE_ITEM'].isin(addTypeFilter)]  
 
     col1, col2 = st.columns([1,5])
-    hg = "210"
+    hg = "203"
     with col1:
         getCard("IMPRESSIONS",int(len(rawAdvertData)),'fa fa-desktop',key='five',height=hg,unit='')
     # with col2:
