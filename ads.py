@@ -143,6 +143,7 @@ def customAggCPC():
     return rd
 
 def getTableCampaignPerf(df):
+    df=df[df['CTR']>0]
     ob = GridOptionsBuilder.from_dataframe(df)
     ob.configure_column('ORDERNAME', rowGroup=True,hide= True)
     ob.configure_column('LINE_ITEM', rowGroup=True,hide=True)
