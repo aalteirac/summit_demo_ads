@@ -46,6 +46,18 @@ def getTopBottomAds(df,bottom=True,n=3):
     mt['CTR']=(mt['CLICKS']/mt['IMPRESSIONS'] )*100       
     return mt.sort_values(by=['CTR'],ascending=bottom).reset_index().head(n)
 
+def getColorRenderer():
+    rd = JsCode('''
+        function(params) { 
+            var color='red';
+            if(params.value<=0.15)
+                color="green";
+            if(params.value>0.15 && params.value<0.20)
+                color="#ffc700";  
+            return '<span style="color:'+color + '">' + parseFloat(params.value).toFixed(2) + '€</span>'}
+    ''') 
+    return rd  
+
 def getChartTopAds(df,asc=True,prefix='Top'):
     df=df.sort_values(by=['CTR'],ascending=asc)
     fig = go.Figure(data=[
@@ -92,7 +104,12 @@ def getKPIByCampaignAds(df):
 def getDollarRenderer():
     rd = JsCode('''
         function(params) { 
-            return '<span>$' + parseFloat(params.value).toFixed(2) + '</span>'}
+            var color='red';
+            if(params.value<=0.06)
+                color="green";
+            if(params.value>0.06 && params.value<0.08)
+                color="#ffc700";  
+            return '<span style="color:'+color + '">$' + parseFloat(params.value).toFixed(2) + '</span>'}
     ''') 
     return rd  
 
@@ -135,7 +152,14 @@ def getTableCampaignPerf(df):
     ob.configure_column('CPC', valueGetter=customAggCPC(),header_name='COST PER CLICK',cellRenderer= getDollarRenderer())    
     ob.configure_grid_options(suppressAggFuncInHeader = True)
     custom_css = {
-        ".ag-row-level-2 .ag-group-expanded, .ag-row-level-2 .ag-group-contracted":{
+        '.ag-header-cell-label': {
+            "justify-content": "center",
+            'text-align': 'center!important'
+        },
+        '.ag-cell-value:not([col-id="ag-Grid-AutoColumn"])' :{
+            'text-align': 'center!important'
+        },
+        ".ag-row-level-1 .ag-group-expanded, .ag-row-level-1 .ag-group-contracted":{
             "display":"none!important",
         },
         ".ag-watermark":{

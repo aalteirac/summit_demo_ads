@@ -63,3 +63,5 @@ if page == "Budget Allocation":
     whatif.getPage(getSession())          
 emp.empty()
 
+# TODO
+# DONE Color coding in the table based on treshold fro CTR
