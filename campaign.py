@@ -38,13 +38,6 @@ def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_s
     else:
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=100,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=pgcol,iconTop=iconTop,backgroundColor=backgroundColor, animate=animate, borderSize='1px')  
 
-# @st.cache_data(show_spinner=False,ttl=5000)
-# def getDistinctAdvertisers():
-#     df=session.sql(f'''
-#     select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
-#     ''').collect()
-#     return df
-
 def getMappingAdvertiser():
     df=session.sql(f'''
     select * from SUMMIT_JIM_DB.RAW_SC.MAPPING_TB;
@@ -103,7 +96,6 @@ def random_dates(start, end, n=10):
     return pd.to_datetime(np.random.randint(start_u, end_u, n), unit='s')
 
 def getPage(sess):
-    
     global session 
     session = sess
     advFilter=st.session_state.get('advFilter')
@@ -139,32 +131,36 @@ def getPage(sess):
 
 
 
+# @st.cache_data(show_spinner=False,ttl=5000)
+# def getDistinctAdvertisers():
+#     df=session.sql(f'''
+#     select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
+#     ''').collect()
+#     return df
+# ar=["Social media ads","Programmatic display ads","Influencer marketing campaigns","Native advertising","Search engine marketing (SEM)","Audio ads","Geofencing ads","Interactive ads","Connected TV ads","Over-the-top ads"]
+# mp=getMappingAdvertiser()
+# allMP=mp
 
-    # ar=["Social media ads","Programmatic display ads","Influencer marketing campaigns","Native advertising","Search engine marketing (SEM)","Audio ads","Geofencing ads","Interactive ads","Connected TV ads","Over-the-top ads"]
-    # mp=getMappingAdvertiser()
-    # allMP=mp
+# mp=mp[mp["ID"]==advFilter] 
 
-    # mp=mp[mp["ID"]==advFilter] 
+# mp=mp.drop_duplicates(subset=['ID'])
+# mp.rename(columns = {'ID':'ADVERTISERID'}, inplace = True)
 
-    # mp=mp.drop_duplicates(subset=['ID'])
-    # mp.rename(columns = {'ID':'ADVERTISERID'}, inplace = True)
+# df_outer = pd.merge(rawAdvertData, mp, on='ADVERTISERID')
+# df_outer = df_outer.drop('AD_SLOGAN', axis=1)
+# result = []
+# dateF = []
+# start = pd.to_datetime('2022-04-01')
+# end = pd.to_datetime('2023-05-01')
+# ts=random_dates(start, end,len(df_outer))
+# for index, row in df_outer.iterrows():
+#     fl=allMP[allMP["ADVERTISER_NAME"]==row["ADVERTISER_NAME"]] 
+#     dd=fl.sample()
+#     result.append(dd['AD_SLOGAN'].iloc[0]) 
 
-    # df_outer = pd.merge(rawAdvertData, mp, on='ADVERTISERID')
-    # df_outer = df_outer.drop('AD_SLOGAN', axis=1)
-    # result = []
-    # dateF = []
-    # start = pd.to_datetime('2022-04-01')
-    # end = pd.to_datetime('2023-05-01')
-    # ts=random_dates(start, end,len(df_outer))
-    # for index, row in df_outer.iterrows():
-    #     fl=allMP[allMP["ADVERTISER_NAME"]==row["ADVERTISER_NAME"]] 
-    #     dd=fl.sample()
-    #     result.append(dd['AD_SLOGAN'].iloc[0]) 
-    
-    # df_outer["ORDERNAME"] = result 
-    # df_outer["TIME_TS"] = ts
-    # df_outer["LINE_ITEM"]=np.random.choice(list(ar), len(df_outer))
-    # st.dataframe(df_outer.sample(2000))
+# df_outer["ORDERNAME"] = result 
+# df_outer["TIME_TS"] = ts
+# df_outer["LINE_ITEM"]=np.random.choice(list(ar), len(df_outer))
+# st.dataframe(df_outer.sample(2000))
 
-    # session.write_pandas(df_outer,"CLICKS", auto_create_table=True, database='SUMMIT_JIM_DB',schema='RAW_SC')
- 
+# session.write_pandas(df_outer,"CLICKS", auto_create_table=True, database='SUMMIT_JIM_DB',schema='RAW_SC')
