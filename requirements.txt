@@ -2,7 +2,7 @@ streamlit==1.18.0
 plotly
 hydralit_components==1.0.10
 snowflake-connector-python
-snowflake-snowpark-python==1.4.0
+snowflake-snowpark-python==1.3.0
 streamlit-folium==0.11.1
 pandas==1.3.5
 Pillow
