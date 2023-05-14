@@ -32,18 +32,6 @@ def getClickDataByAdvertiser(adv):
     ''').collect()
     return pd.DataFrame(df)  
 
-@st.cache_data(show_spinner=False,ttl=5000)
-def getRawCampaign():
-    queryAll=f'''
-    SELECT *,to_date(TO_VARCHAR(DAY, 'yyyy-MM-01')) as MONTH,coalesce((clicks/NULLIF(impressions,0))*100,0) as CTR,coalesce(((clicks + likes + shares)/NULLIF(impressions,0))*100,0) as ER from adverity.adverity."Marketing_Data";
-    '''
-    df = pd.read_sql(queryAll, session)
-    return df
-
-    return df.groupby(['MONTH']).agg({'IMPRESSIONS':'sum',
-                                      'CLICKS':'sum',
-                                      'CTR':"mean"}).reset_index()
-
 def getCTRByDevice(df):
     mt=df.groupby(['DEVICECATEGORY']).agg({'IMPRESSIONS':'sum',
             'CLICKS':'sum'})
