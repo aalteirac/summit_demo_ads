@@ -2,7 +2,7 @@ import hydralit_components as hc
 import campaign, ads,whatif
 from ui import setUI
 import streamlit.components.v1 as components
-import snowflake.connector as sf
+from snowflake.snowpark import Session
 import streamlit as st
 import gc
 import configparser
@@ -13,14 +13,10 @@ st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
 
 @st.cache_resource(ttl=5000)
 def getSession():
-    try:
-        config = configparser.ConfigParser()
-        config.read("secrets.toml")
-        print(dict(config.items("snow")))
-        session=sf.connect(**dict(config.items("snow")))
-        
-    except :
-        session = sf.connect(**st.secrets.snow)
+    print(dict(st.secrets.snow))
+    config = configparser.ConfigParser()
+    config.read("secrets.toml")
+    session = Session.builder.configs(dict(st.secrets.snow)).create() 
     return session
 
 menu_data = [
@@ -49,7 +45,7 @@ page = hc.nav_bar(
 emp=st.empty()
 gc.collect()
 setUI()
-emp.markdown('<p class="big-font">⏳</p>', unsafe_allow_html=True)
+# emp.markdown('<p class="big-font">⏳</p>', unsafe_allow_html=True)
 
 if page == 'Campaigns Overview':
     campaign.getPage(getSession())    

@@ -6,7 +6,8 @@ import pycountry
 import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
-
+import numpy as np
+from datetime import datetime
 
 session=None
 
@@ -38,18 +39,41 @@ def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_s
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=100,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=pgcol,iconTop=iconTop,backgroundColor=backgroundColor, animate=animate)  
 
 @st.cache_data(show_spinner=False,ttl=5000)
-def getRawCampaign():
-    queryAll=f'''
-    SELECT *,to_date(TO_VARCHAR(DAY, 'yyyy-MM-01')) as MONTH,coalesce((clicks/NULLIF(impressions,0))*100,0) as CTR,coalesce(((clicks + likes + shares)/NULLIF(impressions,0))*100,0) as ER from adverity.adverity."Marketing_Data";
-    '''
-    df = pd.read_sql(queryAll, session)
+def getDistinctAdvertisers():
+    df=session.sql(f'''
+    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
+    ''').collect()
     return df
 
-def getGlobalKPI(dt,kpi,op='sum'):
-    if op=='sum':
-        return dt[kpi].sum()
-    if op=='mean':
-        return dt[kpi].mean()
+def getMappingAdvertiser():
+    df=session.sql(f'''
+    select * from SUMMIT_JIM_DB.RAW_SC.MAPPING_TB;
+    ''').collect()
+    return pd.DataFrame(df)
+
+def getAllAdvertiserData(adv):
+    df=session.sql(f'''
+    select * from SUMMIT_JIM_DB.RAW_SC."GAM_VIZ_CLICKS_UPDATED_DATA";
+    ''').collect()
+    return pd.DataFrame(df)
+
+def getAdvertiserData(adv):
+    df=session.sql(f'''
+    select *,1 as IMPRESSIONS,
+    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
+    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
+    WHERE ADVERTISER_NAME='{adv}';
+    ''').collect()
+    return pd.DataFrame(df)
+
+def getClickDataByAdvertiser(adv):
+    df=session.sql(f'''
+    select *, 1 as CLICKS,
+    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
+    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
+    WHERE ADVERTISER_NAME='{adv}';
+    ''').collect()
+    return pd.DataFrame(df)         
 
 def getChartClickCTR(df):
     fig = go.Figure(data=[
@@ -62,51 +86,85 @@ def getChartClickCTR(df):
         'yaxis3': {'title': 'CTR(%)', 'overlaying': 'y', 'side': 'left','position':0.05,"anchor":"free",'showgrid':False,'showline':False}
     })
     # Change the bar mode
-    fig.update_layout(barmode='group',xaxis=dict(
-        domain=[0.12, 0.88]),height=600, title='Impressions, Clicks & CTR(%)')
+    fig.update_layout(barmode='group',height=600, title='Impressions, Clicks & CTR(%)')
     st.plotly_chart(fig, theme="streamlit",use_container_width=True)
 
 def getKPIByMonth(df):
-    return df.groupby(['MONTH']).agg({'IMPRESSIONS':'sum',
-                                      'CLICKS':'sum',
-                                      'CTR':"mean"}).reset_index()
+    mt=df.groupby(['MONTH']).agg({'IMPRESSIONS':'sum',
+            'CLICKS':'sum'})
+    mt['CTR']=(mt['CLICKS']/mt['IMPRESSIONS'] )*100       
+    # st.dataframe(mt)    
+    return mt.reset_index()
+
+def random_dates(start, end, n=10):
+    start_u = start.value//10**9
+    end_u = end.value//10**9
+    return pd.to_datetime(np.random.randint(start_u, end_u, n), unit='s')
 
 def getPage(sess):
+    
     global session 
     session = sess
-    rawcampDF=getRawCampaign()
-    col1, col2,col3,col4 = st.columns(4)
-    hg = "210"
-    with col1:
-        getCard("GBL IMPRESSIONS",int(getGlobalKPI( rawcampDF,'IMPRESSIONS','sum')),'fa fa-desktop',key='one',height=hg,unit='')
-    with col2:
-        getCard("GLOBAL CLICKS",int(getGlobalKPI( rawcampDF,'CLICKS','sum')),'fa fa-hand-pointer',key='two,',height=hg,unit='')
-    with col3:
-        getCard("GLOBAL CTR (%)",str(round(getGlobalKPI( rawcampDF,'CTR','mean'),2))+'%' ,'fa fa-money-bill',key='three',height=hg, unit="")
-    with col4:
-        getCard("GLOBAL ER (%)",str(round(getGlobalKPI( rawcampDF,'ER','mean'),2))+'%','fa fa-heart',key='four',height=hg, unit="",) 
+    advFilter=st.selectbox("Select Advertiser:", getDistinctAdvertisers(),index=0)
+
+    rawAdvertData=getAdvertiserData(advFilter)
+    rawClicksData=getClickDataByAdvertiser(advFilter)
+    uniqueAdds=np.sort(rawAdvertData['ORDERNAME'].unique())
+    uniqueAddsType=rawAdvertData['LINE_ITEM'].unique()
 
     colCt,colCg= st.columns(2)
+    campaignFilter=colCt.multiselect("Select Campaigns:", uniqueAdds,default=[])
+    addTypeFilter=colCg.multiselect("Select Ads:", uniqueAddsType,default=[])
 
-    uniqueCountries=np.sort(rawcampDF['COUNTRY_NAME'].unique())
-    uniqueCampaigns=rawcampDF['CAMPAIGN'].unique()
-    countryFilter=colCt.multiselect("Select Country:", uniqueCountries,default=[])
-    campaignFilter=colCg.multiselect("Select Campaign:", uniqueCampaigns,default=[])
-    if len(countryFilter)!=0:
-        rawcampDF=rawcampDF[rawcampDF['COUNTRY_NAME'].isin(countryFilter)]
-    if len(campaignFilter)!=0:
-        rawcampDF=rawcampDF[rawcampDF['CAMPAIGN'].isin(campaignFilter)]    
+    if len(addTypeFilter)!=0 or len(campaignFilter)!=0: 
+        if len(campaignFilter)!=0:
+            rawAdvertData=rawAdvertData[rawAdvertData['ORDERNAME'].isin(campaignFilter)]
+            rawClicksData=rawClicksData[rawClicksData['ORDERNAME'].isin(campaignFilter)]
+        if len(addTypeFilter)!=0:
+            rawAdvertData=rawAdvertData[rawAdvertData['LINE_ITEM'].isin(addTypeFilter)]  
+            rawClicksData=rawClicksData[rawClicksData['LINE_ITEM'].isin(addTypeFilter)]  
 
-    if len(countryFilter)!=0 or len(campaignFilter)!=0: 
-        col1, col2,col3,col4 = st.columns(4)
-        with col1:
-            getCard("IMPRESSIONS",int(getGlobalKPI( rawcampDF,'IMPRESSIONS','sum')),'fa fa-desktop',key='five',height=hg,unit='')
-        with col2:
-            getCard("CLICKS",int(getGlobalKPI( rawcampDF,'CLICKS','sum')),'fa fa-hand-pointer',key='six',height=hg,unit='')
-        with col3:
-            getCard("CTR (%)",str(round(getGlobalKPI( rawcampDF,'CTR','mean'),2))+'%','fa fa-money-bill',key='seven',unit="",height=hg)
-        with col4:
-            getCard("ER (%)",str(round(getGlobalKPI( rawcampDF,'ER','mean'),2))+'%','fa fa-heart',key='height',unit="",height=hg)
+    col1, col2,col3 = st.columns(3)
+    hg = "210"
+    with col1:
+        getCard("IMPRESSIONS",int(len(rawAdvertData)),'fa fa-desktop',key='five',height=hg,unit='')
+    with col2:
+        getCard("CLICKS",len(rawClicksData),'fa fa-hand-pointer',key='six',height=hg,unit='')
+    with col3:
+        getCard("CTR (%)",str(round((len(rawClicksData)/len(rawAdvertData))*100,2))+'%' ,'fa fa-money-bill',key='seven',unit="",height=hg)
 
-    getChartClickCTR(getKPIByMonth(rawcampDF))
+    data = [rawAdvertData, rawClicksData]
+    all = pd.concat(data)
+    getChartClickCTR(getKPIByMonth(all))
+
+
+
+
+    # ar=["Social media ads","Programmatic display ads","Influencer marketing campaigns","Native advertising","Search engine marketing (SEM)","Audio ads","Geofencing ads","Interactive ads","Connected TV ads","Over-the-top ads"]
+    # mp=getMappingAdvertiser()
+    # allMP=mp
+
+    # mp=mp[mp["ID"]==advFilter] 
+
+    # mp=mp.drop_duplicates(subset=['ID'])
+    # mp.rename(columns = {'ID':'ADVERTISERID'}, inplace = True)
+
+    # df_outer = pd.merge(rawAdvertData, mp, on='ADVERTISERID')
+    # df_outer = df_outer.drop('AD_SLOGAN', axis=1)
+    # result = []
+    # dateF = []
+    # start = pd.to_datetime('2022-04-01')
+    # end = pd.to_datetime('2023-05-01')
+    # ts=random_dates(start, end,len(df_outer))
+    # for index, row in df_outer.iterrows():
+    #     fl=allMP[allMP["ADVERTISER_NAME"]==row["ADVERTISER_NAME"]] 
+    #     dd=fl.sample()
+    #     result.append(dd['AD_SLOGAN'].iloc[0]) 
+    
+    # df_outer["ORDERNAME"] = result 
+    # df_outer["TIME_TS"] = ts
+    # df_outer["LINE_ITEM"]=np.random.choice(list(ar), len(df_outer))
+    # st.dataframe(df_outer.sample(2000))
+
+    # session.write_pandas(df_outer,"CLICKS", auto_create_table=True, database='SUMMIT_JIM_DB',schema='RAW_SC')
  

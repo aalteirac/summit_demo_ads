@@ -49,21 +49,33 @@ def getPercentRenderer():
     return rd   
 
 def getChartCTRByDevice(df):
+    print(df)
     fig = go.Figure(data=[
-        go.Bar(name='IMPRESSIONS', x=df['DEVICE_TYPE'], y=df['CTR'],yaxis='y',text=df['CTR']/100)
+        go.Bar(name='IMPRESSIONS', x=df.index, y=df['CTR'],yaxis='y',text=df['CTR']/100)
     ],layout={
         'yaxis': {'title': 'CTR(%)','showgrid':False,'showline':False}
     })
     fig.data[0].marker.color = ('blue','green','darkgrey')
     fig.update_traces(texttemplate='%{text:.2%}', textposition='inside')
+
+    no_color = "rgba(128, 0, 128, 0.7)"
+    shapes = []
+    h=0.5
+    for x, y in zip(fig["data"][0]["x"], fig["data"][0]["y"]):
+        rounded_top_right = f' L {x+h}, {y} Q {x}, {y} {x}, {y+h}Z'
+        print(rounded_top_right)
+        shapes.append(
+            dict(type="path",layer='above', path=rounded_top_right, line_color=no_color, fillcolor='red',line=dict(color='rgba(128, 0, 128, 0.7)', width=5.5))
+        )
     fig.update_layout(margin=dict(
             l=0,
             r=0,
             b=0,
             t=30,
             pad=4
-        ))
-    fig.update_layout(height=490,title='CTR(%) by Device Type',yaxis_range=[df['CTR'].min() - (df['CTR'].min()/50),df['CTR'].max()]) #yaxis_range=[1.2,1.25]
+        )
+        )
+    fig.update_layout(height=490,title='CTR(%) by Device Type',yaxis_range=[df['CTR'].min() - (df['CTR'].min()/50),df['CTR'].max()],shapes=shapes) #yaxis_range=[1.2,1.25]
     st.plotly_chart(fig, theme="streamlit",use_container_width=True)
 
 def getChartTopAds(df,asc=True,prefix='Top'):
