@@ -236,7 +236,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
 def getPage(sess):
     global session 
     session = sess
-    advFilter=st.selectbox("Select Advertiser:", getDistinctAdvertisers(),index=0)
+    advFilter=st.session_state.get('advFilter')
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)
     data = [rawAdvertData, rawClicksData]

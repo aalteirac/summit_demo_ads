@@ -42,7 +42,7 @@ def formatBigNumber(number):
     magnitude = int(floor(log(number, k)))
     return '%.3f%s' % (number / k**magnitude, units[magnitude])
 
-def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='250',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100,progressColor='green'):
+def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='200',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100,progressColor='green'):
     if compare==False:
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,progressColor=progressColor,iconLeft=iconLeft,showProgress=True,iconTop=iconTop,backgroundColor=backgroundColor)
     else:
@@ -83,7 +83,7 @@ def setShape (x):
 def getPage(sess):
     global session 
     session = sess
-    advFilter=st.selectbox("Select Advertiser:", getDistinctAdvertisers(),index=0)
+    advFilter=st.session_state.get('advFilter')
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)
     data = [rawAdvertData, rawClicksData]
@@ -121,7 +121,7 @@ def getPage(sess):
     if st.session_state.get('clusNum') is not None:
         kmeans = KMeans(init="random", n_clusters=st.session_state.get('clusNum'), n_init=10, random_state=1)
     else:
-        kmeans = KMeans(init="random", n_clusters=5, n_init=10, random_state=1)
+        kmeans = KMeans(init="random", n_clusters=3, n_init=10, random_state=1)
     clusterDF=orig.groupby(['LINE_ITEM']).agg({
                             'IMPRESSIONS':'sum',
                             'CLICKS':'sum',
@@ -146,9 +146,10 @@ def getPage(sess):
         getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100) 
     colL,colR=st.columns(2)   
     with colL: 
-        st.slider('Cluster Number',2,10,value=5,key='clusNum')
+        st.slider('Cluster Number',2,10,value=3,key='clusNum')
     with colR:
         st.multiselect('Exclude Cluster:',np.unique(kmeans.labels_),key='clusterstore')
+ 
     if clusterSelected is not None and  len(clusterSelected)>0:     
         fig = px.scatter(
             clusterDF,
@@ -173,7 +174,8 @@ def getPage(sess):
             color="CLUSTER",
             hover_name="LINE_ITEM",
             size_max=30,
-            height=430
+            height=400
         )
+    fig.update_layout(xaxis={'visible': True, 'showticklabels': False})    
     st.subheader("Clustering Ads by IMPRESSIONS and CTR"  )      
     st.plotly_chart(fig, theme="streamlit",use_container_width=True)   

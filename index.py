@@ -19,6 +19,13 @@ def getSession():
     session = Session.builder.configs(dict(st.secrets.snow)).create() 
     return session
 
+@st.cache_data(show_spinner=False,ttl=5000)
+def getDistinctAdvertisers():
+    df=getSession().sql(f'''
+    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
+    ''').collect()
+    return df
+
 menu_data = [
     {'id':'Campaigns Overview','icon':"fas fa-map-signs",'label':"Campaigns Overview"},
     {'id':'Ads Performance','icon':"fab fa-buysellads",'label':"Ads Performance"},
@@ -30,8 +37,9 @@ over_theme = {'txc_active':'#5d5d5d','txc_inactive': '#adadad', 'menu_background
 
 image = Image.open('summit_logo.png')
 
-
-st.image(image)
+col1,col2=st.columns([1,5])
+col1.image(image)
+advFilter=col2.selectbox("ADVERTISER:", getDistinctAdvertisers(),index=0,key='advFilter')
 
 page = hc.nav_bar(
     menu_definition=menu_data,

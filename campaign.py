@@ -38,12 +38,12 @@ def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_s
     else:
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=100,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=pgcol,iconTop=iconTop,backgroundColor=backgroundColor, animate=animate, borderSize='1px')  
 
-@st.cache_data(show_spinner=False,ttl=5000)
-def getDistinctAdvertisers():
-    df=session.sql(f'''
-    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
-    ''').collect()
-    return df
+# @st.cache_data(show_spinner=False,ttl=5000)
+# def getDistinctAdvertisers():
+#     df=session.sql(f'''
+#     select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
+#     ''').collect()
+#     return df
 
 def getMappingAdvertiser():
     df=session.sql(f'''
@@ -104,8 +104,8 @@ def getPage(sess):
     
     global session 
     session = sess
-    advFilter=st.selectbox("Select Advertiser:", getDistinctAdvertisers(),index=0)
-
+    advFilter=st.session_state.get('advFilter')
+    
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)
     uniqueAdds=np.sort(rawAdvertData['ORDERNAME'].unique())
