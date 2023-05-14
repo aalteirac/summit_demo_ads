@@ -71,10 +71,12 @@ def getClickDataByAdvertiser(adv):
     return pd.DataFrame(df)         
 
 def getChartClickCTR(df):
+    # col=['#B6E2A1','#FEBE8C','#F7A4A4']
+    col=['#B6E2A1','#FEBE8C','#FF7171']
     fig = go.Figure(data=[
-        go.Bar(name='IMPRESSIONS', x=df['MONTH'], y=df['IMPRESSIONS'],yaxis='y',offsetgroup=1),
-        go.Bar(name='CLICKS', x=df['MONTH'], y=df['CLICKS'],yaxis='y2',offsetgroup=2),
-        go.Line(name='CTR(%)',x=df['MONTH'], y=df['CTR'],yaxis='y3',offsetgroup=3)
+        go.Bar(name='IMPRESSIONS', x=df['MONTH'], y=df['IMPRESSIONS'],yaxis='y',offsetgroup=1,marker={'color':col[0]}),
+        go.Bar(name='CLICKS', x=df['MONTH'], y=df['CLICKS'],yaxis='y2',offsetgroup=2,marker={'color':col[1]}),
+        go.Line(name='CTR(%)',x=df['MONTH'], y=df['CTR'],yaxis='y3',offsetgroup=3,marker={'color':col[2]})
     ],layout={
         'yaxis': {'title': 'IMPRESSIONS','showgrid':False,'showline':False},
         'yaxis2': {'title': 'CLICKS', 'overlaying': 'y', 'side': 'right','showgrid':False,'showline':False},
