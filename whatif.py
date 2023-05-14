@@ -34,15 +34,17 @@ def getClickDataByAdvertiser(adv):
     ''').collect()
     return pd.DataFrame(df)  
 
-def getCard(text,val,icon, key,compare=False,titleTextSize="16vw",content_text_size="10vw",unit="%",height='200',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100,progressColor='green'):
+def getCard(text,val,icon, key,compare=False,anim=True,titleTextSize="16vw",content_text_size="10vw",unit="%",height='200',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100,progressColor='green'):
     if compare==False:
-        streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,progressColor=progressColor,iconLeft=iconLeft,showProgress=True,iconTop=iconTop,backgroundColor=backgroundColor)
+        streamlit_kpi(key=key+"_n",height=height,animate=anim,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,progressColor=progressColor,iconLeft=iconLeft,showProgress=True,iconTop=iconTop,backgroundColor=backgroundColor)
     else:
-        streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=progressColor,iconTop=iconTop,backgroundColor=backgroundColor)  
+        streamlit_kpi(key=key+"_n",height=height,animate=anim,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=progressColor,iconTop=iconTop,backgroundColor=backgroundColor)  
 
 def getTotalCost(df):
     if 'COSTS' in df:
         return df['COSTS'].sum()  
+    if 'COSTS_x' in df:
+        return df['COSTS_x'].sum()      
 
 def getCampaignSelectionBox(raw,selec):
     raw=raw.sort_values(['ORDERNAME'])
@@ -90,16 +92,16 @@ def getPage(sess):
                 dt=dt[dt["LINE_ITEM"].isin(ads)] 
         totalcostOrig=getTotalCost(orig)
         if len(campaings)>0:
-            save=getTotalCost(dt)
+            costSel=getTotalCost(dt)
         else:
-            save=0    
-        compared=(1-((save/totalcostOrig)))*100
+            costSel=0    
+        compared=((costSel/totalcostOrig))*100
         st.subheader("Rebalance Budget Manually"  )
         colL,colR=st.columns(2)
         with colL:
-            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare=False,key='zero',unit='$')  
+            getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare=False,key='zero',unit='$',progressColor='transparent')  
         with colR:
-            getCard(text='BUDGET BUFFER:',val=int(save), icon='fa fa-piggy-bank',compare=True,key='minusone',unit='$') 
+            getCard(text='BUDGET BUFFER:',val=int(costSel), icon='fa fa-piggy-bank',compare=True,key='minusone',progressValue=compared,unit='$') 
         getCampaignSelectionBox(orig,dt) 
         getAdsSelectionBox(orig,dt)   
 
@@ -127,7 +129,7 @@ def getPage(sess):
         st.subheader("Rebalance Budget Scientifically"  )
         colL,colR=st.columns(2)
         with colL:
-            getCard(text="ORIGINAL COST",val=int(totalcostOrig),icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
+            getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
         with colR:
             getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100) 
         colL,colR=st.columns(2)   
