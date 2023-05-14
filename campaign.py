@@ -86,7 +86,7 @@ def getChartClickCTR(df):
         'yaxis3': {'title': 'CTR(%)', 'overlaying': 'y', 'side': 'left','position':0.05,"anchor":"free",'showgrid':False,'showline':False}
     })
     # Change the bar mode
-    fig.update_layout(barmode='group',height=600, title='Impressions, Clicks & CTR(%)')
+    fig.update_layout(barmode='group',height=700, title='Impressions, Clicks & CTR(%)')
     st.plotly_chart(fig, theme="streamlit",use_container_width=True)
 
 def getKPIByMonth(df):
@@ -124,18 +124,19 @@ def getPage(sess):
             rawAdvertData=rawAdvertData[rawAdvertData['LINE_ITEM'].isin(addTypeFilter)]  
             rawClicksData=rawClicksData[rawClicksData['LINE_ITEM'].isin(addTypeFilter)]  
 
-    col1, col2,col3 = st.columns(3)
+    col1, col2 = st.columns([1,5])
     hg = "210"
     with col1:
         getCard("IMPRESSIONS",int(len(rawAdvertData)),'fa fa-desktop',key='five',height=hg,unit='')
-    with col2:
+    # with col2:
         getCard("CLICKS",len(rawClicksData),'fa fa-hand-pointer',key='six',height=hg,unit='')
-    with col3:
+    # with col3:
         getCard("CTR (%)",str(round((len(rawClicksData)/len(rawAdvertData))*100,2))+'%' ,'fa fa-money-bill',key='seven',unit="",height=hg)
 
     data = [rawAdvertData, rawClicksData]
     all = pd.concat(data)
-    getChartClickCTR(getKPIByMonth(all))
+    with col2:
+        getChartClickCTR(getKPIByMonth(all))
 
 
 
