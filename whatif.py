@@ -88,8 +88,9 @@ def getPage(sess):
         else:   
             if len(campaings)>0: 
                 dt=dt[dt["ORDERNAME"].isin(campaings)]
-            if len(ads)>0:    
-                dt=dt[dt["LINE_ITEM"].isin(ads)] 
+            if ads is not None:    
+                if len(ads)>0:    
+                    dt=dt[dt["LINE_ITEM"].isin(ads)] 
         totalcostOrig=getTotalCost(orig)
         if len(campaings)>0:
             costSel=getTotalCost(dt)
