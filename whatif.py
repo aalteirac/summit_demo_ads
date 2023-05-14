@@ -77,7 +77,7 @@ def getPage(sess):
     dt['COSTS']=round(dt['SELLERRESERVEPRICE']*9999,2)
     orig=dt.copy()
     dt2=orig.copy()
-    tab1, tab2 = st.tabs(["Assisted", "Manual"])
+    tab1, tab2 = st.tabs(["Manual","Assisted"])
 
     with tab1:
         campaings=st.session_state.get('campaign') 
