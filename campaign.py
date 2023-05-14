@@ -9,6 +9,8 @@ import numbers
 import numpy as np
 from datetime import datetime
 
+CTR_FACTOR=0.5
+
 session=None
 
 def alpha3code(column):
@@ -53,7 +55,7 @@ def getAllAdvertiserData(adv):
 @st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=session.sql(f'''
-    select *,1 as IMPRESSIONS,
+    select *,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
     to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
     to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
     WHERE ADVERTISER_NAME='{adv}';
@@ -63,7 +65,7 @@ def getAdvertiserData(adv):
 @st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByAdvertiser(adv):
     df=session.sql(f'''
-    select *, 1 as CLICKS,
+    select *, {CTR_FACTOR} as CLICKS,
     to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
     to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
     WHERE ADVERTISER_NAME='{adv}';
@@ -121,10 +123,11 @@ def getPage(sess):
 
     col1, col2 = st.columns([1,5])
     hg = "203"
+    totalClicks=int(rawClicksData[["CLICKS"]].sum().iloc[0])
     with col1:
         getCard("IMPRESSIONS",int(len(rawAdvertData))*9999,'fa fa-desktop',key='five',height=hg,unit='')
-        getCard("CLICKS",len(rawClicksData)*9999,'fa fa-hand-pointer',key='six',height=hg,unit='')
-        getCard("CTR (%)",str(round((len(rawClicksData)/len(rawAdvertData))*100,2))+'%' ,'fa fa-money-bill',key='seven',unit="",height=hg)
+        getCard("CLICKS",totalClicks*9999,'fa fa-hand-pointer',key='six',height=hg,unit='')
+        getCard("CTR (%)",str(round((totalClicks/len(rawAdvertData))*100,2))+'%' ,'fa fa-money-bill',key='seven',unit="",height=hg)
 
     data = [rawAdvertData, rawClicksData]
     all = pd.concat(data)

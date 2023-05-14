@@ -7,6 +7,8 @@ import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
 
+CTR_FACTOR=0.5
+
 session=None
 
 @st.cache_data(show_spinner=False,ttl=5000)
@@ -19,7 +21,7 @@ def getDistinctAdvertisers():
 @st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=session.sql(f'''
-    select *,1 as IMPRESSIONS,
+    select *,1 as IMPRESSIONS,CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
     to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
     to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
     WHERE ADVERTISER_NAME='{adv}';
@@ -29,7 +31,7 @@ def getAdvertiserData(adv):
 @st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByAdvertiser(adv):
     df=session.sql(f'''
-    select *, 1 as CLICKS,
+    select *, {CTR_FACTOR} as CLICKS,
     to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
     to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
     WHERE ADVERTISER_NAME='{adv}';
@@ -117,9 +119,10 @@ def getPage(sess):
             kmeans = KMeans(init="random", n_clusters=3, n_init=10, random_state=1)
         clusterDF=orig.groupby(['LINE_ITEM']).agg({
                                 'IMPRESSIONS':'sum',
+                                'IMPDEC':'sum',
                                 'CLICKS':'sum',
                                 'COSTS':'mean'}).reset_index()
-        clusterDF['CTR']=(clusterDF['CLICKS']/clusterDF['IMPRESSIONS'] )*100                                  
+        clusterDF['CTR']=(clusterDF['CLICKS']/clusterDF['IMPDEC'] )*100                                  
         kmeans.fit(clusterDF[['CTR','COSTS']])  
         clusterDF['CLUSTER'] = kmeans.labels_ 
         clusterDF['CLUSTER']  = clusterDF['CLUSTER'].astype(str)

@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode,GridUpdateMode
 
+CTR_FACTOR=0.5
 
 
 session=None
@@ -17,7 +18,7 @@ def getDistinctAdvertisers():
 @st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=session.sql(f'''
-    select *,1 as IMPRESSIONS,
+    select *,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
     to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
     to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
     WHERE ADVERTISER_NAME='{adv}';
@@ -27,7 +28,7 @@ def getAdvertiserData(adv):
 @st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByAdvertiser(adv):
     df=session.sql(f'''
-    select *, 1 as CLICKS,
+    select *, {CTR_FACTOR} as CLICKS,
     to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
     to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
     WHERE ADVERTISER_NAME='{adv}';
@@ -105,9 +106,9 @@ def getDollarRenderer():
     rd = JsCode('''
         function(params) { 
             var color='red';
-            if(params.value<=0.06)
+            if(params.value<=0.11)
                 color="green";
-            if(params.value>0.06 && params.value<0.08)
+            if(params.value>0.11 && params.value<0.14)
                 color="#ffc700";  
             return '<span style="color:'+color + '">$' + parseFloat(params.value).toFixed(2) + '</span>'}
     ''') 
