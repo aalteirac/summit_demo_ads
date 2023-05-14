@@ -57,6 +57,7 @@ def getAllAdvertiserData(adv):
     ''').collect()
     return pd.DataFrame(df)
 
+@st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=session.sql(f'''
     select *,1 as IMPRESSIONS,
@@ -66,6 +67,7 @@ def getAdvertiserData(adv):
     ''').collect()
     return pd.DataFrame(df)
 
+@st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByAdvertiser(adv):
     df=session.sql(f'''
     select *, 1 as CLICKS,
@@ -105,7 +107,7 @@ def getPage(sess):
     global session 
     session = sess
     advFilter=st.session_state.get('advFilter')
-    
+
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)
     uniqueAdds=np.sort(rawAdvertData['ORDERNAME'].unique())
