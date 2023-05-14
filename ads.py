@@ -78,7 +78,6 @@ def getChartTopAds(df,asc=True,prefix='Top'):
     st.plotly_chart(fig,config=config, theme="streamlit",use_container_width=True)    
 
 def getChartCTRByDevice(df):
-    print(df)
     fig = go.Figure(data=[
         go.Bar(name='IMPRESSIONS', x=df['DEVICECATEGORY'], y=df['CTR'],yaxis='y',text=df['CTR']/100)
     ],layout={
@@ -159,7 +158,7 @@ def getTableCampaignPerf(df):
         }
     gripOption=ob.build()
     gripOption["autoGroupColumnDef"]= {
-    "headerName": 'CAMPAIGN/AD_TYPE',
+    "headerName": 'CAMPAIGN - AD TYPE',
     "cellRendererParams": {
         "suppressDoubleClickExpand": True,  
         "suppressCount": True,
@@ -257,7 +256,6 @@ def getPage(sess):
     all['IMPRESSIONS']=all['IMPRESSIONS']*9999
     all['CLICKS']=all['CLICKS']*9999
     all['SELLERRESERVEPRICE']=round(all['SELLERRESERVEPRICE']*9999,2)
-    # st.subheader("Ads Performance Deep Dive")
     colL,colR,colRR=st.columns([2,1,1])
     with colL:
         getChartCTRByDevice(getCTRByDevice(all))
