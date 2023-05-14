@@ -79,7 +79,7 @@ def getPage(sess):
     dt2=orig.copy()
     tab1, tab2 = st.tabs(["Assisted", "Manual"])
 
-    with tab2:
+    with tab1:
         campaings=st.session_state.get('campaign') 
         ads=st.session_state.get('ads') 
         if campaings is None:
@@ -105,7 +105,7 @@ def getPage(sess):
         getCampaignSelectionBox(orig,dt) 
         getAdsSelectionBox(orig,dt)   
 
-    with tab1:
+    with tab2:
         clusterSelected=st.session_state.get('clusterstore')
         if st.session_state.get('clusNum') is not None:
             kmeans = KMeans(init="random", n_clusters=st.session_state.get('clusNum'), n_init=10, random_state=1)
