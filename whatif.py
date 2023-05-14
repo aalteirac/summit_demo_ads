@@ -103,7 +103,8 @@ def getPage(sess):
         with colR:
             getCard(text='BUDGET BUFFER:',val=int(costSel), icon='fa fa-piggy-bank',compare=True,key='minusone',progressValue=compared,unit='$') 
         getCampaignSelectionBox(orig,dt) 
-        getAdsSelectionBox(orig,dt)   
+        if len(campaings)>0:
+            getAdsSelectionBox(orig,dt)   
 
     with tab2:
         clusterSelected=st.session_state.get('clusterstore')
