@@ -65,4 +65,4 @@ emp.empty()
 
 # TODO
 # DONE Color coding in the table based on treshold fro CTR
-# Suppress 0 clicks line on table ads
+# DONE Suppress 0 clicks line on table ads

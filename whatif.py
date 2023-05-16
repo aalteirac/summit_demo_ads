@@ -18,7 +18,7 @@ def getDistinctAdvertisers():
     ''').collect()
     return df
 
-@st.cache_data(show_spinner=False,ttl=5000)
+
 def getAdvertiserData(adv):
     df=session.sql(f'''
     select *,1 as IMPRESSIONS,CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
@@ -28,7 +28,6 @@ def getAdvertiserData(adv):
     ''').collect()
     return pd.DataFrame(df)
 
-@st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByAdvertiser(adv):
     df=session.sql(f'''
     select *, {CTR_FACTOR} as CLICKS,
