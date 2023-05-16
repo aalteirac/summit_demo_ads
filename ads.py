@@ -106,12 +106,52 @@ def getDollarRenderer():
     ''') 
     return rd  
 
-def getNbenderer():
-    rd = JsCode('''
-        function(params) { 
-            return '<span>' + parseFloat(params.value).toLocaleString('en-US', {maximumFractionDigits:2}) + '</span>'}
-    ''') 
-    return rd  
+def getNbRenderer(prefix="",suffix="", black='yes'):
+    rd = f'''
+    class TotalValueRenderer {{
+        init(params) {{
+            var black="{black}";
+            var color='red';
+            if(params.value<=0.11)
+                color="green";
+            if(params.value>0.11 && params.value<0.14)
+                color="#ffc700";  
+            if (black=="yes"){{
+                color="black"
+            }}    
+            this.eGui = document.createElement('div');
+            this.eGui.innerHTML = `
+                <span>
+                    <span style="color:${{color}}" class="my-value"></span>
+                </span>`;
+
+            this.eValue = this.eGui.querySelector('.my-value');
+            this.cellValue = this.getValueToDisplay(params);
+            this.eValue.innerHTML = this.cellValue;
+        }}
+
+        getGui() {{
+            return this.eGui;
+        }}
+
+        refresh(params) {{
+            this.cellValue = this.getValueToDisplay(params);
+            this.eValue.innerHTML = this.cellValue;
+            return true;
+        }}
+        destroy() {{
+            if (this.eButton) {{
+                this.eButton.removeEventListener('click', this.eventListener);
+            }}
+        }}
+
+        getValueToDisplay(params) {{
+            return "{prefix}" + parseFloat(params.value).toLocaleString('en-US', {{maximumFractionDigits:2}})+"{suffix}"
+            //return params.valueFormatted ? params.valueFormatted : params.value;
+        }}
+    }}'''
+    print(rd)
+    return JsCode(rd)
 
 def getPercentRenderer():
 
@@ -139,11 +179,11 @@ def getTableCampaignPerf(df):
     ob = GridOptionsBuilder.from_dataframe(df)
     ob.configure_column('ORDERNAME', rowGroup=True,hide= True)
     ob.configure_column('LINE_ITEM', rowGroup=True,hide=True)
-    ob.configure_column('IMPRESSIONS', aggFunc='sum',header_name='IMPRESSIONS',cellRenderer=getNbenderer())
-    ob.configure_column('CLICKS', aggFunc='sum', header_name='CLICKS',cellRenderer=getNbenderer())
-    ob.configure_column('SELLERRESERVEPRICE', aggFunc='sum',cellRenderer=getDollarRenderer(),hide=True)
-    ob.configure_column('CTR', aggFunc='avg',header_name='CTR',cellRenderer= getPercentRenderer())
-    ob.configure_column('CPC', valueGetter=customAggCPC(),header_name='COST PER CLICK',cellRenderer= getDollarRenderer())    
+    ob.configure_column('IMPRESSIONS', aggFunc='sum',header_name='IMPRESSIONS',cellRenderer=getNbRenderer('',''))
+    ob.configure_column('CLICKS', aggFunc='sum', header_name='CLICKS',cellRenderer=getNbRenderer('',''))
+    ob.configure_column('SELLERRESERVEPRICE', aggFunc='sum',hide=True)
+    ob.configure_column('CTR', aggFunc='avg',header_name='CTR',cellRenderer=getNbRenderer('','%'))
+    ob.configure_column('CPC', valueGetter=customAggCPC(),header_name='COST PER CLICK',cellRenderer= getNbRenderer(black='no',prefix='$'))    
     ob.configure_grid_options(suppressAggFuncInHeader = True)
     custom_css = {
         '.ag-header-cell-label': {
