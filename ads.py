@@ -2,9 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode,GridUpdateMode
-from lib import getDistinctAdvertisers
-
-CTR_FACTOR=0.5
+from lib import getDistinctAdvertisers, CTR_FACTOR, GLOBAL_SCALE_FACTOR
 
 session=None
 
@@ -220,9 +218,9 @@ def getPage(sess):
     rawClicksData=getClickDataByAdvertiser(advFilter)
     data = [rawAdvertData, rawClicksData]
     all = pd.concat(data)
-    all['IMPRESSIONS']=all['IMPRESSIONS']*9999
-    all['CLICKS']=all['CLICKS']*9999
-    all['SELLERRESERVEPRICE']=round(all['SELLERRESERVEPRICE']*9999,2)
+    all['IMPRESSIONS']=all['IMPRESSIONS']*GLOBAL_SCALE_FACTOR
+    all['CLICKS']=all['CLICKS']*GLOBAL_SCALE_FACTOR
+    all['SELLERRESERVEPRICE']=round(all['SELLERRESERVEPRICE']*GLOBAL_SCALE_FACTOR,2)
     colL,colR,colRR=st.columns([2,1,1])
     with colL:
         getChartCTRByDevice(getCTRByDevice(all))

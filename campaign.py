@@ -7,8 +7,8 @@ from streamlit_kpi import streamlit_kpi
 import numbers
 import numpy as np
 from datetime import datetime
+from lib import CTR_FACTOR, GLOBAL_SCALE_FACTOR
 
-CTR_FACTOR=0.5
 
 session=None
 
@@ -122,8 +122,8 @@ def getPage(sess):
     hg = "203"
     totalClicks=int(rawClicksData[["CLICKS"]].sum().iloc[0])
     with col1:
-        getCard("IMPRESSIONS",int(len(rawAdvertData))*9999,'fa fa-desktop',key='five',height=hg,unit='')
-        getCard("CLICKS",totalClicks*9999,'fa fa-hand-pointer',key='six',height=hg,unit='')
+        getCard("IMPRESSIONS",int(len(rawAdvertData))*GLOBAL_SCALE_FACTOR,'fa fa-desktop',key='five',height=hg,unit='')
+        getCard("CLICKS",totalClicks*GLOBAL_SCALE_FACTOR,'fa fa-hand-pointer',key='six',height=hg,unit='')
         getCard("CTR (%)",str(round((totalClicks/len(rawAdvertData))*100,2))+'%' ,'fa fa-money-bill',key='seven',unit="",height=hg)
 
     data = [rawAdvertData, rawClicksData]

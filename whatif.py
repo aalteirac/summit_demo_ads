@@ -6,9 +6,7 @@ import plotly.express as px
 import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
-from lib import getDistinctAdvertisers
-
-CTR_FACTOR=0.5
+from lib import getDistinctAdvertisers, CTR_FACTOR, GLOBAL_SCALE_FACTOR
 
 session=None
 
@@ -69,9 +67,9 @@ def getPage(sess):
     data = [rawAdvertData, rawClicksData]
     dt = pd.concat(data)
     dt=dt.reset_index()
-    dt['IMPRESSIONS']=dt['IMPRESSIONS']*9999
-    dt['CLICKS']=dt['CLICKS']*9999
-    dt['COSTS']=round(dt['SELLERRESERVEPRICE']*9999,2)
+    dt['IMPRESSIONS']=dt['IMPRESSIONS']*GLOBAL_SCALE_FACTOR
+    dt['CLICKS']=dt['CLICKS']*GLOBAL_SCALE_FACTOR
+    dt['COSTS']=round(dt['SELLERRESERVEPRICE']*GLOBAL_SCALE_FACTOR,2)
     orig=dt.copy()
     dt2=orig.copy()
     tab1, tab2 = st.tabs(["Manual","Assisted"])

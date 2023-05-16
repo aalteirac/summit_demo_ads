@@ -2,7 +2,8 @@ import configparser
 from snowflake.snowpark import Session
 import streamlit as st
 
-
+CTR_FACTOR=0.5
+GLOBAL_SCALE_FACTOR=9999
 
 @st.cache_resource(ttl=5000)
 def getSession():
