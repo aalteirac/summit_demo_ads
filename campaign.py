@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from st_aggrid import AgGrid
-import pycountry
 import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
