@@ -106,7 +106,7 @@ def getDollarRenderer():
     ''') 
     return rd  
 
-def getNbRenderer(prefix="",suffix="", black='yes'):
+def getNbRenderer(prefix="",suffix="", black='yes',arr=0):
     rd = f'''
     class TotalValueRenderer {{
         init(params) {{
@@ -146,19 +146,15 @@ def getNbRenderer(prefix="",suffix="", black='yes'):
         }}
 
         getValueToDisplay(params) {{
-            return "{prefix}" + parseFloat(params.value).toLocaleString('en-US', {{maximumFractionDigits:2}})+"{suffix}"
-            //return params.valueFormatted ? params.valueFormatted : params.value;
+            var v=parseFloat(params.value).toFixed({arr});
+            if({arr}>0){{
+                return "{prefix}" + parseFloat(v).toFixed({arr}).toLocaleString('en-US', {{maximumFractionDigits:2}})+"{suffix}"
+            }}
+            return "{prefix}" + parseFloat(v).toLocaleString('en-US', {{maximumFractionDigits:2}})+"{suffix}"
         }}
     }}'''
     print(rd)
-    return JsCode(rd)
-
-def getPercentRenderer():
-
-    rd = JsCode('''
-        function(params) {return '<span>' + parseFloat(params.value).toFixed(2) + '%</span>'}
-    ''') 
-    return rd   
+    return JsCode(rd)  
 
 def customAggCPC():
     rd=JsCode('''
@@ -182,8 +178,8 @@ def getTableCampaignPerf(df):
     ob.configure_column('IMPRESSIONS', aggFunc='sum',header_name='IMPRESSIONS',cellRenderer=getNbRenderer('',''))
     ob.configure_column('CLICKS', aggFunc='sum', header_name='CLICKS',cellRenderer=getNbRenderer('',''))
     ob.configure_column('SELLERRESERVEPRICE', aggFunc='sum',hide=True)
-    ob.configure_column('CTR', aggFunc='avg',header_name='CTR',cellRenderer=getNbRenderer('','%'))
-    ob.configure_column('CPC', valueGetter=customAggCPC(),header_name='COST PER CLICK',cellRenderer= getNbRenderer(black='no',prefix='$'))    
+    ob.configure_column('CTR', aggFunc='avg',header_name='CTR',cellRenderer=getNbRenderer('','%',arr=2))
+    ob.configure_column('CPC', valueGetter=customAggCPC(),header_name='COST PER CLICK',cellRenderer= getNbRenderer(black='no',prefix='$',arr=3))    
     ob.configure_grid_options(suppressAggFuncInHeader = True)
     custom_css = {
         '.ag-header-cell-label': {
