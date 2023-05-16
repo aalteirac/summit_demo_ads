@@ -2,19 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode,GridUpdateMode
+from lib import getDistinctAdvertisers
 
 CTR_FACTOR=0.5
 
-
 session=None
-
-@st.cache_data(show_spinner=False,ttl=5000)
-def getDistinctAdvertisers():
-    df=session.sql(f'''
-    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
-    ''').collect()
-    return df
-
 
 def getAdvertiserData(adv):
     df=session.sql(f'''

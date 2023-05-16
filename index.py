@@ -2,29 +2,16 @@ import hydralit_components as hc
 import campaign, ads,whatif
 from ui import setUI
 import streamlit.components.v1 as components
-from snowflake.snowpark import Session
 import streamlit as st
 import gc
-import configparser
+import lib as lib
+
 from PIL import Image
 
 
 st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
 
-@st.cache_resource(ttl=5000)
-def getSession():
-    print(dict(st.secrets.snow))
-    config = configparser.ConfigParser()
-    config.read("secrets.toml")
-    session = Session.builder.configs(dict(st.secrets.snow)).create() 
-    return session
 
-@st.cache_data(show_spinner=False,ttl=5000)
-def getDistinctAdvertisers():
-    df=getSession().sql(f'''
-    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
-    ''').collect()
-    return df
 
 menu_data = [
     {'id':'Campaigns Overview','icon':"fas fa-map-signs",'label':"Campaigns Overview"},
@@ -39,7 +26,7 @@ image = Image.open('summit_logo.png')
 
 col1,col2=st.columns([1,5])
 col1.image(image)
-advFilter=col2.selectbox("ADVERTISER:", getDistinctAdvertisers(),index=0,key='advFilter')
+advFilter=col2.selectbox("ADVERTISER:", lib.getDistinctAdvertisers(),index=0,key='advFilter')
 
 page = hc.nav_bar(
     menu_definition=menu_data,
@@ -56,11 +43,11 @@ setUI()
 # emp.markdown('<p class="big-font">⏳</p>', unsafe_allow_html=True)
 
 if page == 'Campaigns Overview':
-    campaign.getPage(getSession())    
+    campaign.getPage(lib.getSession())    
 if page == 'Ads Performance':
-    ads.getPage(getSession()) 
+    ads.getPage(lib.getSession()) 
 if page == "Budget Allocation":
-    whatif.getPage(getSession())          
+    whatif.getPage(lib.getSession())          
 emp.empty()
 
 # TODO

@@ -6,17 +6,11 @@ import plotly.express as px
 import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
+from lib import getDistinctAdvertisers
 
 CTR_FACTOR=0.5
 
 session=None
-
-@st.cache_data(show_spinner=False,ttl=5000)
-def getDistinctAdvertisers():
-    df=session.sql(f'''
-    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
-    ''').collect()
-    return df
 
 
 def getAdvertiserData(adv):
