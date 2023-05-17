@@ -2,28 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode,GridUpdateMode
-from lib import getDistinctAdvertisers, CTR_FACTOR, GLOBAL_SCALE_FACTOR
+from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser
 
 session=None
 
-def getAdvertiserData(adv):
-    df=session.sql(f'''
-    select *,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return pd.DataFrame(df)
-
-
-def getClickDataByAdvertiser(adv):
-    df=session.sql(f'''
-    select *, {CTR_FACTOR} as CLICKS,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return pd.DataFrame(df)  
 
 def getCTRByDevice(df):
     mt=df.groupby(['DEVICECATEGORY']).agg({'IMPRESSIONS':'sum',

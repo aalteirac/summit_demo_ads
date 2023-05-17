@@ -7,7 +7,7 @@ from streamlit_kpi import streamlit_kpi
 import numbers
 import numpy as np
 from datetime import datetime
-from lib import CTR_FACTOR, GLOBAL_SCALE_FACTOR
+from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser
 
 
 session=None
@@ -38,36 +38,6 @@ def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_s
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,unit=unit,iconLeft=iconLeft,showProgress=False,iconTop=iconTop,backgroundColor=backgroundColor, animate=animate, borderSize='1px')
     else:
         streamlit_kpi(key=key+"_n",height=height,title=text,value=val,icon=icon,progressValue=100,unit=unit,iconLeft=iconLeft,showProgress=True,progressColor=pgcol,iconTop=iconTop,backgroundColor=backgroundColor, animate=animate, borderSize='1px')  
-
-def getMappingAdvertiser():
-    df=session.sql(f'''
-    select * from SUMMIT_JIM_DB.RAW_SC.MAPPING_TB;
-    ''').collect()
-    return pd.DataFrame(df)
-
-def getAllAdvertiserData(adv):
-    df=session.sql(f'''
-    select * from SUMMIT_JIM_DB.RAW_SC."GAM_VIZ_CLICKS_UPDATED_DATA";
-    ''').collect()
-    return pd.DataFrame(df)
-
-def getAdvertiserData(adv):
-    df=session.sql(f'''
-    select *,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return pd.DataFrame(df)
-
-def getClickDataByAdvertiser(adv):
-    df=session.sql(f'''
-    select *, {CTR_FACTOR} as CLICKS,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return pd.DataFrame(df)         
 
 def getChartClickCTR(df):
     # col=['#B6E2A1','#FEBE8C','#F7A4A4']

@@ -6,28 +6,10 @@ import plotly.express as px
 import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
-from lib import getDistinctAdvertisers, CTR_FACTOR, GLOBAL_SCALE_FACTOR
+from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser
 
 session=None
 
-
-def getAdvertiserData(adv):
-    df=session.sql(f'''
-    select *,1 as IMPRESSIONS,CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return pd.DataFrame(df)
-
-def getClickDataByAdvertiser(adv):
-    df=session.sql(f'''
-    select *, {CTR_FACTOR} as CLICKS,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."CLICKS" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return pd.DataFrame(df)  
 
 def getCard(text,val,icon, key,compare=False,anim=True,titleTextSize="16vw",content_text_size="10vw",unit="%",height='200',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100,progressColor='green'):
     if compare==False:
@@ -67,7 +49,7 @@ def getPage(sess):
     data = [rawAdvertData, rawClicksData]
     dt = pd.concat(data)
     dt=dt.reset_index()
-    dt['IMPRESSIONS']=dt['IMPRESSIONS']*GLOBAL_SCALE_FACTOR
+    dt['IMPRESSIONS_INT']=dt['IMPRESSIONS_INT']*GLOBAL_SCALE_FACTOR
     dt['CLICKS']=dt['CLICKS']*GLOBAL_SCALE_FACTOR
     dt['COSTS']=round(dt['SELLERRESERVEPRICE']*GLOBAL_SCALE_FACTOR,2)
     orig=dt.copy()
@@ -109,7 +91,7 @@ def getPage(sess):
         else:
             kmeans = KMeans(init="random", n_clusters=3, n_init=10, random_state=1)
         clusterDF=orig.groupby(['LINE_ITEM']).agg({
-                                'IMPRESSIONS':'sum',
+                                'IMPRESSIONS_INT':'sum',
                                 'IMPDEC':'sum',
                                 'CLICKS':'sum',
                                 'COSTS':'mean'}).reset_index()
@@ -140,7 +122,7 @@ def getPage(sess):
             fig = px.scatter(
                 clusterDF,
                 y="CTR",
-                size="IMPRESSIONS",
+                size="IMPRESSIONS_INT",
                 x='COSTS',
                 color="CLUSTER",
                 symbol = 'EXCLUDED',
@@ -155,7 +137,7 @@ def getPage(sess):
             fig = px.scatter(
                 clusterDF,
                 y="CTR",
-                size="IMPRESSIONS",
+                size="IMPRESSIONS_INT",
                 x='COSTS',
                 color="CLUSTER",
                 hover_name="LINE_ITEM",

@@ -1,5 +1,5 @@
 import hydralit_components as hc
-import campaign, ads,whatif
+import campaign, ads,whatif,bench
 from ui import setUI
 import streamlit.components.v1 as components
 import streamlit as st
@@ -17,6 +17,7 @@ menu_data = [
     {'id':'Campaigns Overview','icon':"fas fa-map-signs",'label':"Campaigns Overview"},
     {'id':'Ads Performance','icon':"fab fa-buysellads",'label':"Ads Performance"},
     {'id':'Budget Allocation','icon':"fas fa-donate",'label':"Budget Allocation"},
+    {'id':'Benchmark','icon':"fab fa-battle-net",'label':"Benchmark"}
 
 ]
 
@@ -47,7 +48,9 @@ if page == 'Campaigns Overview':
 if page == 'Ads Performance':
     ads.getPage(lib.getSession()) 
 if page == "Budget Allocation":
-    whatif.getPage(lib.getSession())          
+    whatif.getPage(lib.getSession()) 
+if page == "Benchmark":
+    bench.getPage(lib.getSession())           
 emp.empty()
 
 # TODO
