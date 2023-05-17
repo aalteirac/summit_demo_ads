@@ -17,17 +17,21 @@ def getSession():
 @st.cache_data(show_spinner=False,ttl=5000)
 def getDistinctAdvertisers():
     df=getSession().sql(f'''
-    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."CLICKS";
+    select distinct ADVERTISER_NAME from SUMMIT_JIM_DB.RAW_SC."INDUSTRIES" ORDER BY ADVERTISER_NAME;
     ''').collect()
     return df
 
 @st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=getSession().sql(f'''
-    select *,1 as IMPRESSIONS_INT,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
-    to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
-    to_date(to_timestamp(time_ts/1000000)) as DATE_IMP from SUMMIT_JIM_DB.RAW_SC."IMPRESSIONS" 
-    WHERE ADVERTISER_NAME='{adv}';
+    select *,
+        1 as IMPRESSIONS_INT,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
+        CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
+        to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
+        to_date(to_timestamp(time_ts/1000000)) as DATE_IMP 
+        FROM SUMMIT_JIM_DB.RAW_SC.IMPRESSIONS AS im JOIN SUMMIT_JIM_DB.RAW_SC.INDUSTRIES AS i
+        USING (advertiser_name)
+    WHERE im.ADVERTISER_NAME='{adv}';
     ''').collect()
     return pd.DataFrame(df)
 

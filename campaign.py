@@ -27,7 +27,7 @@ def alpha3code(column):
                 CODE.append('VEN')    
     return CODE
 
-def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_size="7vw",unit="%",height='150',iconLeft=95,iconTop=80,backgroundColor='white', animate=True):
+def getCard(text,val,icon, key,compare=False,titleTextSize="11vw",content_text_size="7vw",unit="%",height='150',iconLeft=85,iconTop=50,backgroundColor='#f0f2f6', animate=True):
     pgcol='green'
     if isinstance(val, numbers.Number):
         if val<0:

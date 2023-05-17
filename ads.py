@@ -133,7 +133,6 @@ def getNbRenderer(prefix="",suffix="", black='yes',arr=0):
             return "{prefix}" + parseFloat(v).toLocaleString('en-US', {{maximumFractionDigits:2}})+"{suffix}"
         }}
     }}'''
-    print(rd)
     return JsCode(rd)  
 
 def customAggCPC():
