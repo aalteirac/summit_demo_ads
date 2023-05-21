@@ -45,7 +45,7 @@ def getDistinctIndustry():
 @st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=getSession().sql(f'''
-    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY,
+    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY,COUNTRY,
         1 as IMPRESSIONS_INT,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
         CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
@@ -59,7 +59,7 @@ def getAdvertiserData(adv):
 @st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByAdvertiser(adv):
     df=getSession().sql(f'''
-    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,SELLERRESERVEPRICE,DEVICECATEGORY, 
+    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,SELLERRESERVEPRICE,DEVICECATEGORY, COUNTRY,
         {CTR_FACTOR} as CLICKS,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
         to_date(to_timestamp(time_ts/1000000)) as DATE_IMP 
@@ -71,7 +71,7 @@ def getClickDataByAdvertiser(adv):
 
 def getIndustryData(ind):
     df=getSession().sql(f'''
-    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY,
+    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY, COUNTRY,
         1 as IMPRESSIONS_INT,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
         CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
@@ -84,7 +84,7 @@ def getIndustryData(ind):
 
 def getClickDataByIndustry(ind):
     df=getSession().sql(f'''
-    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,SELLERRESERVEPRICE,DEVICECATEGORY,INDUSTRY,
+    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,SELLERRESERVEPRICE,DEVICECATEGORY,INDUSTRY,COUNTRY,
         {CTR_FACTOR} as CLICKS,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
         to_date(to_timestamp(time_ts/1000000)) as DATE_IMP 
@@ -94,8 +94,12 @@ def getClickDataByIndustry(ind):
     ''').collect()
     return pd.DataFrame(df)           
 
-
-
+def getAdvertiserIndustry(adv):
+    df=getSession().sql(f'''
+    select INDUSTRY from SUMMIT_JIM_DB.RAW_SC."INDUSTRIES" 
+    WHERE ADVERTISER_NAME='{adv}';
+    ''').collect()
+    return df
 
 def getAllAdvertiserData(adv):
     df=getSession().sql(f'''

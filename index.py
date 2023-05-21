@@ -57,3 +57,4 @@ emp.empty()
 # DONE Color coding in the table based on treshold fro CTR
 # DONE Suppress 0 clicks line on table ads
 # Select current advertiser industry by default
+# NO give worng result, Get distinct countrie and ads per advertiser, not the all list
