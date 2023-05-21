@@ -40,16 +40,24 @@ def getPage(sess):
     all_current = pd.concat(dtc)
 
     
+    # filterhere
 
-    hg = "643"
+
+
+    hg = "561"
     totalClicks_industry=int(industry_clicks[["CLICKS"]].sum().iloc[0])
     totalClicks_current=int(current_clicks[["CLICKS"]].sum().iloc[0])
-
+    industry_ctr=round((totalClicks_industry/len(industry_impressions))*100,3)
+    current_ctr=round((totalClicks_current/len(currrent_impressions))*100,3)
+    color='green'
+    if(industry_ctr>current_ctr):
+        color='red'
     with colR:
+        st.title(ind.upper()+ ' INDUSTRY vs YOUR PERFORMANCE:')
         colInd,colYou=st.columns([3,3])
         with colInd:
-            getCard(ind.upper()+" CTR(%)",str(round((totalClicks_industry/len(industry_impressions))*100,2))+'%' ,'fa fa-money-bill',key='indust_card_bench',unit="",height=hg,showProgress=False)
+            getCard("CTR(%)",str(industry_ctr)+'%' ,'fas fa-industry',key='indust_card_bench',unit="",height=hg,progressColor='lightgrey')
         with colYou:
-            getCard("YOUR CTR (%)",str(round((totalClicks_current/len(currrent_impressions))*100,2))+'%' ,'fa fa-money-bill',key='current_card_bench',unit="",height=hg)
+            getCard("YOUR CTR (%)",str(current_ctr)+'%' ,'fa fa-hand-pointer',key='current_card_bench',unit="",height=hg,progressColor=color)
 
     # st.dataframe(countries)
