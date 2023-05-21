@@ -192,8 +192,6 @@ def getTableCampaignPerf(df):
     AgGrid(df,gripOption, enable_enterprise_modules=True,fit_columns_on_grid_load=True,height=210,custom_css=custom_css,allow_unsafe_jscode=True, update_mode=GridUpdateMode.NO_UPDATE )
 
 def getPage(sess):
-    global session 
-    session = sess
     advFilter=st.session_state.get('advFilter')
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)

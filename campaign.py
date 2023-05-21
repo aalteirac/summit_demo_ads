@@ -67,8 +67,6 @@ def random_dates(start, end, n=10):
     return pd.to_datetime(np.random.randint(start_u, end_u, n), unit='s')
 
 def getPage(sess):
-    global session 
-    session = sess
     advFilter=st.session_state.get('advFilter')
 
     rawAdvertData=getAdvertiserData(advFilter)

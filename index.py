@@ -32,9 +32,9 @@ advFilter=col2.selectbox("ADVERTISER:", lib.getDistinctAdvertisers(),index=0,key
 page = hc.nav_bar(
     menu_definition=menu_data,
     override_theme=over_theme,
-    hide_streamlit_markers=False, #will show the st hamburger as well as the navbar now!
-    sticky_nav=True, #at the top or not
-    sticky_mode='pinned', #jumpy or not-jumpy, but sticky or pinned
+    hide_streamlit_markers=False, 
+    sticky_nav=True, 
+    sticky_mode='pinned', 
 )
 
 
@@ -56,3 +56,4 @@ emp.empty()
 # TODO
 # DONE Color coding in the table based on treshold fro CTR
 # DONE Suppress 0 clicks line on table ads
+# Select current advertiser industry by default

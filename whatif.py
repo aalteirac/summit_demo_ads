@@ -7,6 +7,7 @@ import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
 from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser
+import math
 
 session=None
 
@@ -41,8 +42,6 @@ def setShape (x):
         return "open"
     
 def getPage(sess):
-    global session 
-    session = sess
     advFilter=st.session_state.get('advFilter')
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)
@@ -57,22 +56,17 @@ def getPage(sess):
     tab1, tab2 = st.tabs(["Manual","Assisted"])
 
     with tab1:
-        campaings=st.session_state.get('campaign') 
         ads=st.session_state.get('ads') 
-        if campaings is None:
-            campaings=[]
+        if ads is None:
             ads=[]
-        else:   
-            if len(campaings)>0: 
-                dt=dt[dt["ORDERNAME"].isin(campaings)]
-            if ads is not None:    
-                if len(ads)>0:    
-                    dt=dt[dt["LINE_ITEM"].isin(ads)] 
-        totalcostOrig=getTotalCost(orig)
-        if len(campaings)>0:
-            costSel=getTotalCost(dt)
-        else:
-            costSel=0    
+            costSel=0 
+        else:    
+            if len(ads)>0:    
+                dt=dt[dt["LINE_ITEM"].isin(ads)] 
+                costSel=getTotalCost(dt) +1   
+            else:
+                costSel=0       
+        totalcostOrig=getTotalCost(orig) 
         compared=((costSel/totalcostOrig))*100
         st.subheader("Rebalance Budget Manually"  )
         colL,colR=st.columns(2)
@@ -80,9 +74,8 @@ def getPage(sess):
             getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare=False,key='zero',unit='$',progressColor='transparent')  
         with colR:
             getCard(text='BUDGET BUFFER:',val=int(costSel), icon='fa fa-piggy-bank',compare=True,key='minusone',progressValue=compared,unit='$') 
-        getCampaignSelectionBox(orig,dt) 
-        if len(campaings)>0:
-            getAdsSelectionBox(orig,dt)   
+
+        getAdsSelectionBox(orig,dt)   
 
     with tab2:
         clusterSelected=st.session_state.get('clusterstore')
