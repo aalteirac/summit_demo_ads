@@ -5,7 +5,7 @@ from streamlit_kpi import streamlit_kpi
 from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser,getIndustryData,getClickDataByIndustry,getDistinctIndustry,getDistinctAds,getDistinctCountries,getAdvertiserIndustry
 
 
-def getCard(text,val,icon, key,compare=False,anim=True,titleTextSize="16vw",content_text_size="10vw",unit="%",height='200',iconLeft=90,iconTop=80,backgroundColor='white',progressValue=100,progressColor='green',showProgress=True):
+def getCard(text,val,icon, key,compare=False,anim=True,titleTextSize="16vw",content_text_size="10vw",unit="%",height='200',iconLeft=90,iconTop=40,backgroundColor='white',progressValue=100,progressColor='green',showProgress=True):
     if compare==False:
         streamlit_kpi(showProgress=showProgress,key=key+"_n",height=height,animate=anim,title=text,value=val,icon=icon,progressValue=progressValue,unit=unit,progressColor=progressColor,iconLeft=iconLeft,iconTop=iconTop,backgroundColor=backgroundColor)
     else:
@@ -16,7 +16,7 @@ def generateCheck(lst,col):
     for index, row in lst.iterrows():
         st.checkbox(row[col],key=col+"_"+row[col],value=True)  
 
-def getCheckedCountries(col):
+def getCheckBoxesState(col):
     sel=[]
     for key in st.session_state.keys():
         if key.startswith(col+'_'):
@@ -52,15 +52,15 @@ def getPage(sess):
 
     
     # filterhere
-    industry_clicks=industry_clicks[industry_clicks["COUNTRY"].isin(getCheckedCountries("COUNTRY"))]
-    industry_impressions=industry_impressions[industry_impressions["COUNTRY"].isin(getCheckedCountries("COUNTRY"))]
-    industry_clicks=industry_clicks[industry_clicks["LINE_ITEM"].isin(getCheckedCountries("LINE_ITEM"))]
-    industry_impressions=industry_impressions[industry_impressions["LINE_ITEM"].isin(getCheckedCountries("LINE_ITEM"))]
+    industry_clicks=industry_clicks[industry_clicks["COUNTRY"].isin(getCheckBoxesState("COUNTRY"))]
+    industry_impressions=industry_impressions[industry_impressions["COUNTRY"].isin(getCheckBoxesState("COUNTRY"))]
+    industry_clicks=industry_clicks[industry_clicks["LINE_ITEM"].isin(getCheckBoxesState("LINE_ITEM"))]
+    industry_impressions=industry_impressions[industry_impressions["LINE_ITEM"].isin(getCheckBoxesState("LINE_ITEM"))]
 
-    current_clicks=current_clicks[current_clicks["COUNTRY"].isin(getCheckedCountries("COUNTRY"))]
-    currrent_impressions=currrent_impressions[currrent_impressions["COUNTRY"].isin(getCheckedCountries("COUNTRY"))]
-    current_clicks=current_clicks[current_clicks["LINE_ITEM"].isin(getCheckedCountries("LINE_ITEM"))]
-    currrent_impressions=currrent_impressions[currrent_impressions["LINE_ITEM"].isin(getCheckedCountries("LINE_ITEM"))]
+    current_clicks=current_clicks[current_clicks["COUNTRY"].isin(getCheckBoxesState("COUNTRY"))]
+    currrent_impressions=currrent_impressions[currrent_impressions["COUNTRY"].isin(getCheckBoxesState("COUNTRY"))]
+    current_clicks=current_clicks[current_clicks["LINE_ITEM"].isin(getCheckBoxesState("LINE_ITEM"))]
+    currrent_impressions=currrent_impressions[currrent_impressions["LINE_ITEM"].isin(getCheckBoxesState("LINE_ITEM"))]
 
     # st.dataframe(current_clicks)
     # st.dataframe(currrent_impressions)
