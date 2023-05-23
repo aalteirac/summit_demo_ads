@@ -22,6 +22,7 @@ def getDistinctAds():
     ''').collect()
     return df
 
+@st.cache_data(show_spinner=False,ttl=5000)
 def getDistinctCountries():
     df=getSession().sql(f'''
     select distinct COUNTRY from SUMMIT_JIM_DB.RAW_SC.IMPRESSIONS ORDER BY COUNTRY;
@@ -69,6 +70,14 @@ def getClickDataByAdvertiser(adv):
     ''').collect()
     return pd.DataFrame(df)  
 
+@st.cache_data(show_spinner=False,ttl=5000)
+def getAdvertiserIndustry(adv):
+    df=getSession().sql(f'''
+    select INDUSTRY from SUMMIT_JIM_DB.RAW_SC."INDUSTRIES" 
+    WHERE ADVERTISER_NAME='{adv}';
+    ''').collect()
+    return df
+    
 def getIndustryData(ind):
     df=getSession().sql(f'''
     select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY, COUNTRY,
@@ -94,13 +103,10 @@ def getClickDataByIndustry(ind):
     ''').collect()
     return pd.DataFrame(df)           
 
-@st.cache_data(show_spinner=False,ttl=5000)
-def getAdvertiserIndustry(adv):
-    df=getSession().sql(f'''
-    select INDUSTRY from SUMMIT_JIM_DB.RAW_SC."INDUSTRIES" 
-    WHERE ADVERTISER_NAME='{adv}';
-    ''').collect()
-    return df
+
+
+
+
 
 def getAllAdvertiserData(adv):
     df=getSession().sql(f'''
