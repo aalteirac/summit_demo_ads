@@ -94,6 +94,7 @@ def getClickDataByIndustry(ind):
     ''').collect()
     return pd.DataFrame(df)           
 
+@st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserIndustry(adv):
     df=getSession().sql(f'''
     select INDUSTRY from SUMMIT_JIM_DB.RAW_SC."INDUSTRIES" 
