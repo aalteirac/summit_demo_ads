@@ -77,7 +77,8 @@ def getAdvertiserIndustry(adv):
     WHERE ADVERTISER_NAME='{adv}';
     ''').collect()
     return df
-    
+
+@st.cache_data(show_spinner=False,ttl=5000)    
 def getIndustryData(ind):
     df=getSession().sql(f'''
     select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY, COUNTRY,
@@ -91,6 +92,7 @@ def getIndustryData(ind):
     ''').collect()
     return pd.DataFrame(df)
 
+@st.cache_data(show_spinner=False,ttl=5000)
 def getClickDataByIndustry(ind):
     df=getSession().sql(f'''
     select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,SELLERRESERVEPRICE,DEVICECATEGORY,INDUSTRY,COUNTRY,
