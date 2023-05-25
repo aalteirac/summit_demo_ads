@@ -157,6 +157,13 @@ def getPage(sess):
             st.slider('Cluster Number',2,10,value=3,key='clusNum')
         with colR:
             st.multiselect('Exclude Cluster:',np.unique(kmeans.labels_),key='clusterstore')
+            
+        with st.expander("Budget Impact",expanded=False):
+            colo,cols=st.columns(2) 
+            with colo:
+                getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
+            with cols:
+                getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100)  
     
         if clusterSelected is not None and  len(clusterSelected)>0:     
             fig = px.scatter(
@@ -187,10 +194,3 @@ def getPage(sess):
         fig.update_layout(xaxis={'visible': True, 'showticklabels': False},yaxis={'visible': True, 'showticklabels': False})    
         st.subheader("Clustering Ads by IMPRESSIONS and CTR"  )      
         st.plotly_chart(fig, theme="streamlit",use_container_width=True) 
-        with st.expander("Budget Impact",expanded=False):
-            colo,cols=st.columns(2) 
-            with colo:
-                getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
-            with cols:
-                getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100)  
-    
