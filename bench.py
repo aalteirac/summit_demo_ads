@@ -29,7 +29,6 @@ def getPage(sess):
     indust_current=pd.DataFrame(getAdvertiserIndustry(advFilter)).iloc[0]['INDUSTRY']
     distinct_industries=pd.DataFrame(getDistinctIndustry())
     indust_current_idx=pd.DataFrame(distinct_industries.index[distinct_industries['INDUSTRY'] == indust_current]).iloc[0,0]
-    print(indust_current_idx)
     colL,colR=st.columns([1,4])
     with colL:
         with st.expander('INDUSTRY:', expanded=True):

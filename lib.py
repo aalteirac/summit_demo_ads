@@ -46,7 +46,7 @@ def getDistinctIndustry():
 @st.cache_data(show_spinner=False,ttl=5000)
 def getAdvertiserData(adv):
     df=getSession().sql(f'''
-    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY,COUNTRY,
+    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY,COUNTRY,0 as CLICKS,
         1 as IMPRESSIONS_INT,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
         CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
@@ -81,7 +81,7 @@ def getAdvertiserIndustry(adv):
 @st.cache_data(show_spinner=False,ttl=5000)    
 def getIndustryData(ind):
     df=getSession().sql(f'''
-    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY, COUNTRY,
+    select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,INDUSTRY,SELLERRESERVEPRICE,DEVICECATEGORY, COUNTRY, 0 as CLICKS,
         1 as IMPRESSIONS_INT,CAST(1 AS DECIMAL(7,2) )  as IMPRESSIONS,
         CAST(1 AS DECIMAL(7,2) ) as IMPDEC,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
@@ -97,6 +97,7 @@ def getClickDataByIndustry(ind):
     df=getSession().sql(f'''
     select ADVERTISER_NAME,ORDERNAME,LINE_ITEM,SELLERRESERVEPRICE,DEVICECATEGORY,INDUSTRY,COUNTRY,
         {CTR_FACTOR} as CLICKS,
+        0 as IMPRESSIONS_INT,
         to_date(TO_VARCHAR(to_date(to_timestamp(time_ts/1000000)), 'yyyy-MM-01')) as MONTH,
         to_date(to_timestamp(time_ts/1000000)) as DATE_IMP 
         from SUMMIT_JIM_DB.RAW_SC."CLICKS" AS ck JOIN SUMMIT_JIM_DB.RAW_SC.INDUSTRIES AS i

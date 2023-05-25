@@ -8,6 +8,7 @@ from streamlit_kpi import streamlit_kpi
 import numbers
 from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser
 import math
+from streamlit_toggle import st_toggle_switch
 
 session=None
 
@@ -22,7 +23,12 @@ def getTotalCost(df):
     if 'COSTS' in df:
         return df['COSTS'].sum()  
     if 'COSTS_x' in df:
-        return df['COSTS_x'].sum()      
+        return df['COSTS_x'].sum()    
+
+def getAvgCTR(dt):
+    if 'CLICKS_x' in dt:
+        return (dt['CLICKS_x'].sum()/dt['IMPRESSIONS'].sum())/100  
+    return (dt['CLICKS'].sum()/dt['IMPRESSIONS'].sum())/100     
 
 def getCampaignSelectionBox(raw,selec):
     raw=raw.sort_values(['ORDERNAME'])
@@ -42,7 +48,19 @@ def setShape (x):
         return "open"
     
 def getPage(sess):
+    # colTop,colTop2=st.columns([1,6])
+    # with colTop:
     advFilter=st.session_state.get('advFilter')
+    auto=st.session_state.get('switch_1')
+    st_toggle_switch(
+        label="Assistance",
+        key="switch_1",
+        default_value=False,
+        label_after=False,
+        inactive_color="#D3D3D3",  
+        active_color="#8b8b8b", 
+        track_color="#716f6f", 
+    )
     rawAdvertData=getAdvertiserData(advFilter)
     rawClicksData=getClickDataByAdvertiser(advFilter)
     data = [rawAdvertData, rawClicksData]
@@ -51,33 +69,52 @@ def getPage(sess):
     dt['IMPRESSIONS_INT']=dt['IMPRESSIONS_INT']*GLOBAL_SCALE_FACTOR
     dt['CLICKS']=dt['CLICKS']*GLOBAL_SCALE_FACTOR
     dt['COSTS']=round(dt['SELLERRESERVEPRICE']*GLOBAL_SCALE_FACTOR,2)
+
     orig=dt.copy()
     dt2=orig.copy()
-    tab1, tab2 = st.tabs(["Manual","Assisted"])
+    # tab1, tab2 = st.tabs(["Manual","Assisted"])
 
-    with tab1:
+
+    if auto==False or auto is None:
         ads=st.session_state.get('ads') 
         if ads is None:
             ads=[]
             costSel=0 
         else:    
             if len(ads)>0:    
-                dt=dt[dt["LINE_ITEM"].isin(ads)] 
+                dt=dt[~dt["LINE_ITEM"].isin(ads)] 
                 costSel=getTotalCost(dt) +1   
             else:
-                costSel=0       
+                costSel=0   
+
+
+        avgCTRT1=getAvgCTR(dt)
+        avgCTROrigT1=getAvgCTR(orig)
+
         totalcostOrig=getTotalCost(orig) 
         compared=((costSel/totalcostOrig))*100
-        st.subheader("Rebalance Budget Manually"  )
-        colL,colR=st.columns(2)
-        with colL:
-            getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare=False,key='zero',unit='$',progressColor='transparent')  
-        with colR:
-            getCard(text='BUDGET BUFFER:',val=int(costSel), icon='fa fa-piggy-bank',compare=True,key='minusone',progressValue=compared,unit='$') 
+        comparedCTR=abs(float(((avgCTRT1-avgCTROrigT1)/avgCTROrigT1)*100))
+        pgcolor='green'
+        if(avgCTRT1<avgCTROrigT1):
+            pgcolor='red'
+        st.subheader("Simulate CTR"  )
+        colL1,colR1=st.columns(2)
+        with colL1:
+            getCard(text="ORIGINAL CTR(%)",anim=False,val=str(round(avgCTROrigT1,3))+'%',icon='fa fa-map-marker-alt',compare=False,key='ctrorig',unit='$',progressColor='transparent')  
+        with colR1:
+            getCard(text='NEW CTR(%):',val=str(round(avgCTRT1,3))+'%', icon='fa fa-hand-pointer',compare=True,key='ctropt',progressValue=comparedCTR,unit='$',progressColor=pgcolor) 
+        
+        getAdsSelectionBox(orig,dt)  
 
-        getAdsSelectionBox(orig,dt)   
+        with st.expander("Budget Impact",expanded=False):
+            colL,colR=st.columns(2)
+            with colL:
+                getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare=False,key='zero',unit='$',progressColor='transparent')  
+            with colR:
+                getCard(text='BUDGET BUFFER:',val=int(costSel), icon='fa fa-piggy-bank',compare=True,key='minusone',progressValue=compared,unit='$') 
 
-    with tab2:
+
+    else:
         clusterSelected=st.session_state.get('clusterstore')
         if st.session_state.get('clusNum') is not None:
             kmeans = KMeans(init="random", n_clusters=st.session_state.get('clusNum'), n_init=10, random_state=1)
@@ -95,16 +132,26 @@ def getPage(sess):
         clusterDF=clusterDF.sort_values(['CLUSTER'])
         if clusterSelected is not None and  len(clusterSelected)>0:
             dt2=pd.merge(dt2, clusterDF[~clusterDF['CLUSTER'].isin(list(map(str, clusterSelected)))],on=["LINE_ITEM"])
-            clusterDF['EXCLUDED']= clusterDF['CLUSTER'].isin(list(map(str, clusterSelected)))  
+            clusterDF['EXCLUDED']= clusterDF['CLUSTER'].isin(list(map(str, clusterSelected))) 
+    
+        
+        avgCTR=getAvgCTR(dt2)
+        avgCTROrig=getAvgCTR(orig)  
+        comparedCTR=abs(float(((avgCTR-avgCTROrig)/avgCTROrig)*100))   
         totalcost=getTotalCost(dt2)
         totalcostOrig=getTotalCost(orig)
         compared=(1-((totalcost/totalcostOrig)))*100
-        st.subheader("Rebalance Budget Scientifically"  )
-        colL,colR=st.columns(2)
-        with colL:
-            getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
-        with colR:
-            getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100) 
+        pgcolor='green'
+        if(avgCTR<avgCTROrig):
+            pgcolor='red'
+        st.subheader("Simulate CTR Scientifically"  )
+
+        colL1,colR1=st.columns(2)
+        with colL1:
+            getCard(text="ORIGINAL CTR(%)",anim=False,val=str(round(avgCTROrig,3))+'%',icon='fa fa-map-marker-alt',compare=False,key='ctrorigScience',unit='$',progressColor='transparent')  
+        with colR1:
+            getCard(text='NEW CTR(%):',val=str(round(avgCTR,3))+'%', icon='fa fa-hand-pointer',compare=True,key='ctroptScience',progressValue=comparedCTR,unit='$',progressColor=pgcolor) 
+
         colL,colR=st.columns(2)   
         with colL: 
             st.slider('Cluster Number',2,10,value=3,key='clusNum')
@@ -114,9 +161,9 @@ def getPage(sess):
         if clusterSelected is not None and  len(clusterSelected)>0:     
             fig = px.scatter(
                 clusterDF,
-                y="CTR",
+                x="CTR",
                 size="IMPRESSIONS_INT",
-                x='COSTS',
+                y='COSTS',
                 color="CLUSTER",
                 symbol = 'EXCLUDED',
                 symbol_map={True:'circle-open',False:'circle'},
@@ -129,14 +176,21 @@ def getPage(sess):
         else:
             fig = px.scatter(
                 clusterDF,
-                y="CTR",
+                x="CTR",
                 size="IMPRESSIONS_INT",
-                x='COSTS',
+                y='COSTS',
                 color="CLUSTER",
                 hover_name="LINE_ITEM",
                 size_max=30,
                 height=400
             )
-        fig.update_layout(xaxis={'visible': True, 'showticklabels': False})    
+        fig.update_layout(xaxis={'visible': True, 'showticklabels': False},yaxis={'visible': True, 'showticklabels': False})    
         st.subheader("Clustering Ads by IMPRESSIONS and CTR"  )      
-        st.plotly_chart(fig, theme="streamlit",use_container_width=True)   
+        st.plotly_chart(fig, theme="streamlit",use_container_width=True) 
+        with st.expander("Budget Impact",expanded=False):
+            colo,cols=st.columns(2) 
+            with colo:
+                getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
+            with cols:
+                getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100)  
+    

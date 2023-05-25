@@ -16,7 +16,7 @@ st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
 menu_data = [
     {'id':'Campaigns Overview','icon':"fas fa-map-signs",'label':"Campaigns Overview"},
     {'id':'Ads Performance','icon':"fab fa-buysellads",'label':"Ads Performance"},
-    {'id':'Budget Allocation','icon':"fas fa-donate",'label':"Budget Allocation"},
+    {'id':'Budget Allocation','icon':"fas fa-sliders-h",'label':"Optimiser"},
     {'id':'Benchmark','icon':"fab fa-battle-net",'label':"Benchmark"}
 
 ]
