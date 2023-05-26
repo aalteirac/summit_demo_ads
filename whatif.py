@@ -147,7 +147,7 @@ def getPage(sess):
         pgcolor='green'
         if(avgCTR<avgCTROrig):
             pgcolor='red'
-        st.subheader("Optimize CTR (ML)"  )
+        st.subheader("Optimize CTR (Machine Learning)"  )
 
         colL1,colR1=st.columns(2)
         with colL1:
