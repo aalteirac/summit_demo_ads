@@ -3,7 +3,7 @@ from snowflake.snowpark import Session
 import streamlit as st
 import pandas as pd
 
-CTR_FACTOR=0.5
+CTR_FACTOR=0.15
 GLOBAL_SCALE_FACTOR=9999
 
 @st.cache_resource(ttl=5000)
