@@ -98,7 +98,7 @@ def getPage(sess):
         pgcolor='green'
         if(avgCTRT1<avgCTROrigT1):
             pgcolor='red'
-        st.subheader("Simulate CTR"  )
+        st.subheader("Optimise CTR (Manual)"  )
         colL1,colR1=st.columns(2)
         with colL1:
             getCard(text="ORIGINAL CTR(%)",anim=False,val=str(round(avgCTROrigT1,3))+'%',icon='fa fa-map-marker-alt',compare=False,key='ctrorig',unit='$',progressColor='transparent')  
@@ -147,7 +147,7 @@ def getPage(sess):
         pgcolor='green'
         if(avgCTR<avgCTROrig):
             pgcolor='red'
-        st.subheader("Simulate CTR Scientifically"  )
+        st.subheader("Optimize CTR (ML)"  )
 
         colL1,colR1=st.columns(2)
         with colL1:
