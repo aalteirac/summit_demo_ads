@@ -3,6 +3,7 @@ import pandas as pd
 from math import log, floor
 from sklearn.cluster import KMeans
 import plotly.express as px
+import plotly.graph_objects as go
 import numpy as np
 from streamlit_kpi import streamlit_kpi
 import numbers
@@ -121,7 +122,7 @@ def getPage(sess):
         else:
             kmeans = KMeans(init="random", n_clusters=5, n_init=10, random_state=1)
         clusterDF=orig.groupby(['LINE_ITEM']).agg({
-                                'IMPRESSIONS_INT':'sum',
+                                'INCOME':'sum',
                                 'IMPDEC':'sum',
                                 'CLICKS':'sum',
                                 'COSTS':'mean'}).reset_index()
@@ -134,6 +135,7 @@ def getPage(sess):
             dt2=pd.merge(dt2, clusterDF[~clusterDF['CLUSTER'].isin(list(map(str, clusterSelected)))],on=["LINE_ITEM"])
             clusterDF['EXCLUDED']= clusterDF['CLUSTER'].isin(list(map(str, clusterSelected))) 
     
+        clusterDF['INCOME']=(clusterDF['INCOME'].max()+20)-clusterDF['INCOME']
         minCTR=clusterDF['CTR'].min()
         suggestedCluster=clusterDF.loc[clusterDF['CTR']==minCTR]['CLUSTER'].iloc[0]
         avgCTR=getAvgCTR(dt2)
@@ -171,7 +173,7 @@ def getPage(sess):
             fig = px.scatter(
                 clusterDF,
                 x="CTR",
-                size="IMPRESSIONS_INT",
+                size="INCOME",
                 y='COSTS',
                 color="CLUSTER",
                 symbol = 'EXCLUDED',
@@ -179,20 +181,41 @@ def getPage(sess):
                 # symbol = 'EXCLUDED',
                 # symbol_sequence= [ 'circle-open','circle'],
                 hover_name="LINE_ITEM",
-                size_max=30,
+                size_max=40,
                 height=430
             ) 
         else:
+            
+            # fig = go.Figure(data=go.Scatter(
+            #     x=clusterDF["CTR"],
+            #     # size=clusterDF["INCOME"],
+            #     y=clusterDF['COSTS'],
+            #     # color="CLUSTER",
+            #     # hover_name="LINE_ITEM",
+            #     mode='markers',
+            #     marker=dict(
+            #         # sizemode='diameter',
+            #         # sizeref=30,
+            #         sizemode='area',
+            #         sizeref=2.*max(clusterDF['INCOME'])/(70.**2),
+            #         sizemin=2,
+                    
+            #         size=clusterDF['INCOME'],
+            #         # color = clusterDF['CLUSTER'],
+            #         colorscale = 'Viridis',
+            #         line_color='rgb(140, 140, 170)'
+            #     )
+            # ))
             fig = px.scatter(
                 clusterDF,
                 x="CTR",
-                size="IMPRESSIONS_INT",
+                size="INCOME",
                 y='COSTS',
                 color="CLUSTER",
                 hover_name="LINE_ITEM",
-                size_max=30,
+                size_max=40,
                 height=400
             )
         fig.update_layout(xaxis={'visible': True, 'showticklabels': False},yaxis={'visible': True, 'showticklabels': False})    
-        st.subheader("Clustering Ads by IMPRESSIONS and CTR"  )      
+        st.subheader("Clustering Ads by MEDIAN HOUSEHOLD INCOME, COST and CTR"  )      
         st.plotly_chart(fig, theme="streamlit",use_container_width=True) 
