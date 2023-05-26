@@ -119,7 +119,7 @@ def getPage(sess):
         if st.session_state.get('clusNum') is not None:
             kmeans = KMeans(init="random", n_clusters=st.session_state.get('clusNum'), n_init=10, random_state=1)
         else:
-            kmeans = KMeans(init="random", n_clusters=3, n_init=10, random_state=1)
+            kmeans = KMeans(init="random", n_clusters=5, n_init=10, random_state=1)
         clusterDF=orig.groupby(['LINE_ITEM']).agg({
                                 'IMPRESSIONS_INT':'sum',
                                 'IMPDEC':'sum',
@@ -134,7 +134,8 @@ def getPage(sess):
             dt2=pd.merge(dt2, clusterDF[~clusterDF['CLUSTER'].isin(list(map(str, clusterSelected)))],on=["LINE_ITEM"])
             clusterDF['EXCLUDED']= clusterDF['CLUSTER'].isin(list(map(str, clusterSelected))) 
     
-        
+        minCTR=clusterDF['CTR'].min()
+        suggestedCluster=clusterDF.loc[clusterDF['CTR']==minCTR]['CLUSTER'].iloc[0]
         avgCTR=getAvgCTR(dt2)
         avgCTROrig=getAvgCTR(orig)  
         comparedCTR=abs(float(((avgCTR-avgCTROrig)/avgCTROrig)*100))   
@@ -152,12 +153,13 @@ def getPage(sess):
         with colR1:
             getCard(text='NEW CTR(%):',val=str(round(avgCTR,3))+'%', icon='fa fa-hand-pointer',compare=True,key='ctroptScience',progressValue=comparedCTR,unit='$',progressColor=pgcolor) 
 
-        colL,colR=st.columns(2)   
+        colL,colR=st.columns(2)  
+        st.info(f'''Based on an advanced analysis, the system suggests excluding cluster {suggestedCluster} first. ''', icon="ℹ️") 
         with colL: 
-            st.slider('Cluster Number',2,10,value=3,key='clusNum')
+            st.slider('Cluster Number',2,10,value=5,key='clusNum')
         with colR:
             st.multiselect('Exclude Cluster:',np.unique(kmeans.labels_),key='clusterstore')
-            
+
         with st.expander("Budget Impact",expanded=False):
             colo,cols=st.columns(2) 
             with colo:
