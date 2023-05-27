@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode,GridUpdateMode
 from lib import GLOBAL_SCALE_FACTOR, getAdvertiserData, getClickDataByAdvertiser
@@ -71,7 +72,9 @@ def getKPIByCampaignAds(df):
                         'CLICKS':"sum",
                         'SELLERRESERVEPRICE':'sum'
                         }).reset_index()
-    df['CTR']=(df['CLICKS']/df['IMPRESSIONS'] )*100                     
+    df = df[df['IMPRESSIONS']>0]
+    df['CTR']=(df['CLICKS']/df['IMPRESSIONS'] )*100   
+    # df['CTR']=df['CLICKS'].astype('float').div(df['IMPRESSIONS'].astype('float')) *100               
     return df[['ORDERNAME','LINE_ITEM','IMPRESSIONS', 'CLICKS','CTR','SELLERRESERVEPRICE']].sort_values(['ORDERNAME'])
 
 def getDollarRenderer():
@@ -92,9 +95,9 @@ def getNbRenderer(prefix="",suffix="", black='yes',arr=0):
         init(params) {{
             var black="{black}";
             var color='red';
-            if(params.value<=0.11)
+            if(params.value<=0.3)
                 color="green";
-            if(params.value>0.11 && params.value<0.14)
+            if(params.value>0.3 && params.value<0.38)
                 color="#ffc700";  
             if (black=="yes"){{
                 color="black"

@@ -20,7 +20,7 @@ def setUI():
                     display:none;
                 }
                 .stApp header{
-                display:none;
+                    display:none;
                 }
                 @keyframes append-animate {
                     from {

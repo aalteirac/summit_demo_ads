@@ -58,3 +58,5 @@ emp.empty()
 # DONE Suppress 0 clicks line on table ads
 # DONE Select current advertiser industry by default
 # Show possible countries for selected Advertiser in benchmark
+# DONE Fix table color coding with new CTR
+# DONE Fix 0 impression bug
