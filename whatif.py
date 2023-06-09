@@ -168,8 +168,11 @@ def getPage(sess):
                 getCard(text="ORIGINAL COST",anim=False,val="{:,}".format(round(totalcostOrig))+'$',icon='fa fa-money-bill',compare= True,progressColor='transparent',key='one',unit='$')  
             with cols:
                 getCard(text='BUDGET BUFFER: ',val=int(totalcostOrig - totalcost), icon='fa fa-piggy-bank',compare= True,key='two',unit='$',progressValue=(int(totalcostOrig - totalcost)/int(totalcostOrig))*100)  
-    
-        if clusterSelected is not None and  len(clusterSelected)>0:     
+
+        clusterDF["AVG CTR"]=clusterDF["CTR"]/1000000
+        clusterDF["AVG COSTS"]=(clusterDF["COSTS"]-49.99)*10
+        clusterDF["AVG INCOME"]=clusterDF["INCOME"].astype(str)+'K'
+        if clusterSelected is not None and  len(clusterSelected)>0:    
             fig = px.scatter(
                 clusterDF,
                 x="CTR",
@@ -178,11 +181,17 @@ def getPage(sess):
                 color="CLUSTER",
                 symbol = 'EXCLUDED',
                 symbol_map={True:'circle-open',False:'circle'},
-                # symbol = 'EXCLUDED',
-                # symbol_sequence= [ 'circle-open','circle'],
                 hover_name="LINE_ITEM",
                 size_max=40,
-                height=430
+                height=430,
+                hover_data={
+                    'CTR':False,
+                    'INCOME':False,
+                    'COSTS':False,
+                    'AVG CTR':':.3%',
+                    'AVG COSTS':':.4f', # add other column, default formatting
+                    'AVG INCOME':True
+                }
             ) 
         else:
             
@@ -214,8 +223,16 @@ def getPage(sess):
                 color="CLUSTER",
                 hover_name="LINE_ITEM",
                 size_max=40,
-                height=400
+                height=400,
+                hover_data={
+                    'CTR':False,
+                    'INCOME':False,
+                    'COSTS':False,
+                    'AVG CTR':':.3%',
+                    'AVG COSTS':':.4f', # add other column, default formatting
+                    'AVG INCOME':True
+                }
             )
-        fig.update_layout(xaxis={'visible': True, 'showticklabels': False},yaxis={'visible': True, 'showticklabels': False})    
+        fig.update_layout(xaxis={'visible': True, 'showticklabels': False},yaxis={'visible': True, 'showticklabels': False}) 
         st.subheader("Clustering Ads by MEDIAN HOUSEHOLD INCOME, COST and CTR"  )      
         st.plotly_chart(fig, theme="streamlit",use_container_width=True) 

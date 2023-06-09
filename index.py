@@ -16,9 +16,8 @@ st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
 menu_data = [
     {'id':'Campaigns Overview','icon':"fas fa-map-signs",'label':"Campaigns Overview"},
     {'id':'Ads Performance','icon':"fab fa-buysellads",'label':"Ads Performance"},
-    {'id':'Budget Allocation','icon':"fas fa-sliders-h",'label':"Optimiser"},
-    {'id':'Benchmark','icon':"fab fa-battle-net",'label':"Benchmark"}
-
+    {'id':'Benchmark','icon':"fab fa-battle-net",'label':"Benchmark"},
+    {'id':'Budget Allocation','icon':"fas fa-sliders-h",'label':"Optimiser"}
 ]
 
 over_theme = {'txc_active':'#5d5d5d','txc_inactive': '#adadad', 'menu_background':'#f0f2f6'}
