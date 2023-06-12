@@ -53,10 +53,12 @@ def getPage(sess):
     # with colTop:
     advFilter=st.session_state.get('advFilter')
     auto=st.session_state.get('switch_1')
+    if auto is None:
+        auto=True
     st_toggle_switch(
         label="Assistance",
         key="switch_1",
-        default_value=False,
+        default_value=True,
         label_after=False,
         inactive_color="#D3D3D3",  
         active_color="#8b8b8b", 
@@ -76,7 +78,7 @@ def getPage(sess):
     # tab1, tab2 = st.tabs(["Manual","Assisted"])
 
 
-    if auto==False or auto is None:
+    if auto==False:
         ads=st.session_state.get('ads') 
         if ads is None:
             ads=[]
@@ -117,6 +119,8 @@ def getPage(sess):
 
     else:
         clusterSelected=st.session_state.get('clusterstore')
+        if st.session_state.get('clex') is not None and clusterSelected is None:
+            clusterSelected=st.session_state.get('clex')
         if st.session_state.get('clusNum') is not None:
             kmeans = KMeans(init="random", n_clusters=st.session_state.get('clusNum'), n_init=10, random_state=1)
         else:
@@ -132,6 +136,7 @@ def getPage(sess):
         clusterDF['CLUSTER']  = clusterDF['CLUSTER'].astype(str)
         clusterDF=clusterDF.sort_values(['CLUSTER'])
         if clusterSelected is not None and  len(clusterSelected)>0:
+            st.session_state['clex']=clusterSelected
             dt2=pd.merge(dt2, clusterDF[~clusterDF['CLUSTER'].isin(list(map(str, clusterSelected)))],on=["LINE_ITEM"])
             clusterDF['EXCLUDED']= clusterDF['CLUSTER'].isin(list(map(str, clusterSelected))) 
     
@@ -160,7 +165,7 @@ def getPage(sess):
         with colL: 
             st.slider('Cluster Number',2,10,value=5,key='clusNum')
         with colR:
-            st.multiselect('Exclude Cluster:',np.unique(kmeans.labels_),key='clusterstore')
+            st.multiselect('Exclude Cluster:',np.unique(kmeans.labels_),default=st.session_state.get('clex'),key='clusterstore')
 
         with st.expander("Budget Impact",expanded=False):
             colo,cols=st.columns(2) 
