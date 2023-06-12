@@ -139,6 +139,8 @@ def getPage(sess):
             st.session_state['clex']=clusterSelected
             dt2=pd.merge(dt2, clusterDF[~clusterDF['CLUSTER'].isin(list(map(str, clusterSelected)))],on=["LINE_ITEM"])
             clusterDF['EXCLUDED']= clusterDF['CLUSTER'].isin(list(map(str, clusterSelected))) 
+        if clusterSelected==[]:
+           st.session_state['clex']=clusterSelected     
     
         clusterDF['INCOME']=(clusterDF['INCOME'].max()+20)-clusterDF['INCOME']
         minCTR=clusterDF['CTR'].min()
